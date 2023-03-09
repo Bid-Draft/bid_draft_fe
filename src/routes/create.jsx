@@ -16,6 +16,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 
+
 export default function SelectSet() {
   const [set, setSet]  = useState("RTR")
   const handleChange = (event) => {
@@ -46,17 +47,3 @@ export default function SelectSet() {
 </FormControl>
   );
 }
-
-// export default function BasicButtons() {  
-//   return (  
-//     <Stack spacing={2} direction="row">  
-//       <Button 
-//         onClick={() => {
-//          fetch("http://localhost:3000/api/v1/game?set=rtr", {
-//           method: 'POST'
-//          })
-//         }}
-//         variant="contained">Start Draft</Button>  
-//     </Stack>  
-//   );  
-// }  
