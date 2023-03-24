@@ -1,13 +1,3 @@
-// import { useState } from 'react';
-// import * as React from 'react';  
-// import Stack from '@mui/material/Stack';  
-// import Button from '@mui/material/Button';  
-// import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
-// import EditIcon from '@mui/icons-material/Edit';
-// import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-// import  {Dropdown, DropdownMenuItem} from '../components/dropdown/dropdown';
-
-
 import * as React from "react";
 import { useState } from 'react';
 import Select from "@mui/material/Select";
@@ -15,14 +5,33 @@ import Button from '@mui/material/Button';
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
+import { useNavigate } from "react-router-dom";
 
 
-export default function SelectSet() {
+const SelectSet = () => {
   const [set, setSet]  = useState("RTR")
   const handleChange = (event) => {
      setSet(event.target.value )
-     console.log({set})
   }
+
+  let navigate = useNavigate(); 
+  const routeChange = (id) =>{ 
+    let path = `/lobby/${id}`; 
+    navigate(path);
+  }
+
+  const makeGame = async (set) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/v1/game?set=${set}`, {
+          method: "POST"
+      });
+      const result = await response.json();
+      routeChange(result.id);
+    } catch(error) {
+      console.log(error)
+    };
+  };
+
   return (
 <FormControl fullWidth>
   <InputLabel> Set </InputLabel>
@@ -38,12 +47,10 @@ export default function SelectSet() {
     <MenuItem value={"KTK"}>KTK</MenuItem>
   </Select>
   <Button 
-        onClick={() => {
-         fetch(`http://localhost:3000/api/v1/game?set=${set}`, {
-          method: 'POST'
-         })
-        }}
+        onClick={() => makeGame(set)}
         variant="contained">Start Draft</Button>  
 </FormControl>
   );
 }
+
+export default SelectSet;
