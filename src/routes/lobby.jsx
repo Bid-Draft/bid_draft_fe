@@ -13,7 +13,9 @@ import { useLoaderData, useSearchParams } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import '../App.css';
 import Button from '@mui/material/Button'; 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+
 
 
 export const lobbyLoader = async ({ params }) => {
@@ -24,13 +26,25 @@ export const lobbyLoader = async ({ params }) => {
 
   return {cards};
 };
-// const [bid1, bid1Set]  = useState("1")
-// const [bid2, bid2Set]  = useState("1")
-// const [bid3, bid3Set]  = useState("1")
-const makeBid = async (set) => {
+
+const Lobby = () => {
+
+if (localStorage.getItem('userId') === null){
+  localStorage.setItem('userId', (uuidv4()));
+}
+const [searchParams] = useSearchParams();
+  console.log(searchParams);
+const [bid1, setBid1]  = useState("0")
+const [bid2, setBid2]  = useState("0")
+const [bid3, setBid3]  = useState("0")
+
+const makeBid = async (bid1,bid2,bid3) => {
+
   try {
-    const response = await fetch(`http://localhost:3000/api/v1/game?set=${set}`, {
-        method: "POST"
+    const response = await fetch(`http://localhost:3000/api/v1/bids`, {
+        method: "POST",
+        body: JSON.stringify({gameId: gameId, bid1: bid1, bid2: bid2, bid3: bid3, uuid: localStorage.getItem('userId'
+        )})
     });
     const result = await response.json();
   } catch(error) {
@@ -38,15 +52,8 @@ const makeBid = async (set) => {
   };
 };
 
-const Lobby = () => {
-const [bid1, setBid1]  = useState("0")
-const [bid2, setBid2]  = useState("0")
-const [bid3, setBid3]  = useState("0")
-// const handleChange = (event) => {
-//   console.log(event)
-//   bid1Set(event.target.value )
-// }
   const result = useLoaderData()
+  const gameId = result.cards.gameId
   const cards = result.cards.cards
   return(
     <div class="row">
