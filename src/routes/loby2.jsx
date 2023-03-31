@@ -39,6 +39,10 @@ useEffect(() => {
 const checkCards = async () => {
   const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}`);
   const json = await response.json();
+  console.log(bids[0].winner_uuid)
+  console.log(localStorage.getItem('userId'))
+  // setLastCardId(json["bids"][0]["card_id"])
+  // if (json["complete"] === "true" && lastCardId === json["bids"][0]["card_id"]) {
   if (json["complete"] === "true" ) {
     setBids(json["bids"])
     setDisplayResults(true);
@@ -93,26 +97,12 @@ const getCards = async (game) => {
     setJustLoaded(true)
   }
 
-    //   bids[int].winner_uuid === localStorage.getItem('userId') ? (
-    //   winner = "your",
-    //   loser = "your opponent's"
-    // ) : (
-    //   winner = "your opponent's",
-    //   loser = "your "
-    // );
+
   function displayBid(bids, int) {
     let winner = "";
     let loser = "";
-    console.log(bids)
-    console.log(bids[int].winner_bid)
-    if (bids[int].winner_uuid === localStorage.getItem('userId')) {
-      winner = "Your";
-      loser = "opponent's";
-    } else {
-      winner = "Opponent's";
-      loser = "your";
-    }
-    if (bids[int].tied === "true") {
+
+    if (bids[int].tied) {
       return `tied with bids of ${bids[int].winner_bid}`;
     } else {
       return `${winner} bid of ${bids[int].winner_bid} beat ${loser} bid of ${bids[int].loser_bid}`;
@@ -145,7 +135,7 @@ const getCards = async (game) => {
         variant="contained">Place Bid</Button> }
 {displayResults ? (
     <div class="w3-container">
-    {displayBid(bids,1)}
+    {displayBid(bids,0)}
   </div>
 ) : null}
 
@@ -158,7 +148,7 @@ const getCards = async (game) => {
         }}/>
         {displayResults ? (
     <div class="w3-container">
-      {displayBid(bids,2)}
+      {displayBid(bids,0)}
   </div>
 ) : null}
   </div>
