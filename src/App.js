@@ -25,7 +25,8 @@
 
 import { Routes, Route, createRoutesFromElements, createBrowserRouter, RouterProvider } from "react-router-dom"
 import Create from "./routes/create"
-import Lobby, {lobbyLoader}  from "./routes/lobby"
+// import Lobby, {lobbyLoader}  from "./routes/lobby"
+import Lobby  from "./routes/lobby"
 
 
 const router = createBrowserRouter([
@@ -36,7 +37,7 @@ const router = createBrowserRouter([
       {
         path: "/lobby/:gameId",
         element: <Lobby />,
-        loader: lobbyLoader
+        // loader: lobbyLoader
       },
     ]
   );
