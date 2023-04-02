@@ -24,34 +24,72 @@ const [cards, setCards]  = useState([
   {id: 530, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=129465&type=card'},
   {id: 531, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=129710&type=card'}])
 const [justLoaded, setJustLoaded] = useState(false)
+const [showBidButton, setShowBidButton] = useState(true)
 const [newCards, setNewCards] = useState(false)
 const [data, setData] = useState(null);
 const [bids, setBids] = useState([]);
-const [lastCardId, setLastCardId] = useState(0);
-useEffect(() => {
-  const interval = setInterval(() => {
-    checkCards();
-  }, 4000);
+const [pendingCards, setPendingCards] = useState({});
+const [playersCards, setPlayersCards] = useState([]);
+const [opponentsCards, setOpponentsCards] = useState([]);
 
-  return () => clearInterval(interval);
-}, []);
+
+
+// useEffect(() => {
+//   const interval = setInterval(() => { 
+//     checkCards();
+//   }, 4000);
+
+//   return () => clearInterval(interval);
+// }, []);
+
+useEffect(() => {
+  let intervalId;
+
+  if (newCards) {
+    intervalId = setInterval(() => {
+      checkCards();
+    }, 4000);
+  }
+
+  return () => clearInterval(intervalId);
+}, [!newCards]);
 
 const checkCards = async () => {
   const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}`);
   const json = await response.json();
   if (json["complete"] === "true" ) {
+    // setBids(json["bids"])
+    // assignBids(json["bids"])
+    // setDisplayResults(true);
+    // delayCards()
+
+
     setBids(json["bids"])
+    assignBids(json["bids"])
+    setNewCards(false);
     setDisplayResults(true);
-    delayCards()
-    setLastCardId(json["bids"][2]["card_id"])
+    delayedAfterGoodBidsReceived()
   }
 };
 
-const delayCards = async () => {
+  const assignBids = (data) => {
+    data.forEach((bid)=>{
+      console.log("doin it")
+      if (bid.tied === "true") {
+        
+      } else if (bid.winner_uuid === localStorage.getItem('userId')) {
+        console.log("won");
+      } else {
+        console.log("lost")}
+    });
+  };
+
+
+const delayedAfterGoodBidsReceived = async () => {
 setTimeout(() => {
-  setNewCards(false);
   getCards(game);
   setDisplayResults(false);
+  setShowBidButton(true);
 }, 10000);}
 
 
@@ -77,14 +115,26 @@ const getCards = async (game) => {
   
     const  data = await results.json();
    setCards(data.cards)
+   assignPendingsCards(data.cards)
     return data
   } catch(error) {
     console.log(error)
   };
 };
 
-   function bidButton(bid1,bid2,bid3) {  
-    const test = makeBid(bid1,bid2,bid3)
+function assignPendingsCards(cards) {
+  const newObj = {};
+  
+  cards.forEach(obj => {
+    const {id, ...rest} = obj;
+    newObj[id] = rest;
+  });
+  console.log(newObj)
+  setPendingCards(newObj);
+}
+   function bidButton(bid1,bid2,bid3) {
+    makeBid(bid1,bid2,bid3)  
+    setShowBidButton(false)
     setNewCards(true)
   }
 
@@ -93,18 +143,9 @@ const getCards = async (game) => {
     setJustLoaded(true)
   }
 
-    //   bids[int].winner_uuid === localStorage.getItem('userId') ? (
-    //   winner = "your",
-    //   loser = "your opponent's"
-    // ) : (
-    //   winner = "your opponent's",
-    //   loser = "your "
-    // );
   function displayBid(bids, int) {
     let winner = "";
     let loser = "";
-    console.log(bids)
-    console.log(bids[int].winner_bid)
     if (bids[int].winner_uuid === localStorage.getItem('userId')) {
       winner = "Your";
       loser = "opponent's";
@@ -139,10 +180,16 @@ const getCards = async (game) => {
         onChange= {(event) => {
           setBid2(event.target.value);
         }}/>
-    {newCards ? null :    
-    <Button
-        onClick={() => bidButton(bid1,bid2,bid3)}
-        variant="contained">Place Bid</Button> }
+{showBidButton ?     
+  <Button
+    onClick={() => bidButton(bid1, bid2, bid3)}
+    variant="contained"
+  >
+    Place Bid
+  </Button> 
+  :    
+  null
+}
 {displayResults ? (
     <div class="w3-container">
     {displayBid(bids,1)}
