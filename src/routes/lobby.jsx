@@ -32,16 +32,6 @@ const [pendingCards, setPendingCards] = useState({});
 const [playersCards, setPlayersCards] = useState([]);
 const [opponentsCards, setOpponentsCards] = useState([]);
 
-
-
-// useEffect(() => {
-//   const interval = setInterval(() => { 
-//     checkCards();
-//   }, 4000);
-
-//   return () => clearInterval(interval);
-// }, []);
-
 useEffect(() => {
   let intervalId;
 
@@ -58,12 +48,6 @@ const checkCards = async () => {
   const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}`);
   const json = await response.json();
   if (json["complete"] === "true" ) {
-    // setBids(json["bids"])
-    // assignBids(json["bids"])
-    // setDisplayResults(true);
-    // delayCards()
-
-
     setBids(json["bids"])
     assignBids(json["bids"])
     setNewCards(false);
@@ -72,17 +56,19 @@ const checkCards = async () => {
   }
 };
 
-  const assignBids = (data) => {
-    data.forEach((bid)=>{
-      console.log("doin it")
-      if (bid.tied === "true") {
-        
-      } else if (bid.winner_uuid === localStorage.getItem('userId')) {
-        console.log("won");
-      } else {
-        console.log("lost")}
-    });
-  };
+const assignBids = (data) => {
+  data.forEach((bid) => {
+    console.log("doin it");
+    if (bid.tied === "true") {
+      // handle tied bids
+    } else if (bid.winner_uuid === localStorage.getItem('userId')) {
+      console.log("won");
+      console.log(pendingCards[bid.card_id].id);
+    } else {
+      console.log("lost");
+    }
+  });
+};
 
 
 const delayedAfterGoodBidsReceived = async () => {
@@ -98,7 +84,7 @@ const makeBid = async (bid1,bid2,bid3) => {
   try {
     const response = await fetch(`http://localhost:3000/api/v1/bids`, {
         method: "POST",
-        body: JSON.stringify({gameId:game, bid1: bid1, bid2: bid2, bid3: bid3, uuid: localStorage.getItem('userId'
+        body: JSON.stringify({gameId:game, bid1: bid1, bid2: bid2, bid3: bid3, card1Id: cards[0].id, card2Id: cards[1].id, card3Id: cards[2].id, uuid: localStorage.getItem('userId'
         )})
     });
     const result = await response.json();
@@ -143,22 +129,22 @@ function assignPendingsCards(cards) {
     setJustLoaded(true)
   }
 
-  function displayBid(bids, int) {
-    let winner = "";
-    let loser = "";
-    if (bids[int].winner_uuid === localStorage.getItem('userId')) {
-      winner = "Your";
-      loser = "opponent's";
-    } else {
-      winner = "Opponent's";
-      loser = "your";
-    }
-    if (bids[int].tied === "true") {
-      return `tied with bids of ${bids[int].winner_bid}`;
-    } else {
-      return `${winner} bid of ${bids[int].winner_bid} beat ${loser} bid of ${bids[int].loser_bid}`;
-    }
+function displayBid(bids, int) {
+  let winner = "";
+  let loser = "";
+  if (bids[int].winner_uuid === localStorage.getItem('userId')) {
+    winner = "Your";
+    loser = "opponent's";
+  } else {
+    winner = "Opponent's";
+    loser = "your";
   }
+  if (bids[int].tied === "true") {
+    return `tied with bids of ${bids[int].winner_bid}`;
+  } else {
+    return `${winner} bid of ${bids[int].winner_bid} beat ${loser} bid of ${bids[int].loser_bid}`;
+  }
+}
   return(
     
     <div class="row">
