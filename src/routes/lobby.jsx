@@ -45,16 +45,34 @@ useEffect(() => {
 }, [!newCards]);
 
 const checkCards = async () => {
-  const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}`);
-  const json = await response.json();
-  if (json["complete"] === "true" ) {
-    setBids(json["bids"])
-    assignBids(json["bids"])
-    setNewCards(false);
-    setDisplayResults(true);
-    delayedAfterGoodBidsReceived()
-  }
+
+  try {
+    const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}&last_card=${cards[2].id}`, {
+        // body: JSON.stringify({gameIdd:"test", card1Id:"45"})
+    });
+    const json = await response.json();
+    if (json["complete"] === "true" ) {
+        setBids(json["bids"])
+        assignBids(json["bids"])
+        setNewCards(false);
+        setDisplayResults(true);
+        delayedAfterGoodBidsReceived()
+      }
+  } catch(error) {
+    console.log(error)
+  };
 };
+// const checkCards = async () => {
+//   const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}&last_card=${cards[2].id}`);
+//   const json = await response.json();
+  // if (json["complete"] === "true" ) {
+  //   setBids(json["bids"])
+  //   assignBids(json["bids"])
+  //   setNewCards(false);
+  //   setDisplayResults(true);
+  //   delayedAfterGoodBidsReceived()
+  // }
+// };
 
 const assignBids = (data) => {
   data.forEach((bid) => {
