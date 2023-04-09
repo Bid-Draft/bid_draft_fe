@@ -20,9 +20,9 @@ const [bid2, setBid2]  = useState("0")
 const [bid3, setBid3]  = useState("0")
 const [displayResults, setDisplayResults] = useState(false)
 const [cards, setCards]  = useState([
-  {id: 529, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130550&type=card'},
-  {id: 530, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=129465&type=card'},
-  {id: 531, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=129710&type=card'}])
+  {id: 529, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'},
+  {id: 530, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'},
+  {id: 531, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'}])
 const [justLoaded, setJustLoaded] = useState(false)
 const [showBidButton, setShowBidButton] = useState(true)
 const [newCards, setNewCards] = useState(false)
@@ -31,8 +31,9 @@ const [bids, setBids] = useState([]);
 const [pendingCards, setPendingCards] = useState({});
 const [playersCards, setPlayersCards] = useState([]);
 const [opponentsCards, setOpponentsCards] = useState([]);
+const [playersCurrency, setPlayersCurrency] = useState("0");
+const [opponentsCurrency, setOpponentsCurrency] = useState("0");
 const [showPlayersCards, setShowPlayersCards] = useState(true);
-
 
 useEffect(() => {
   let intervalId;
@@ -46,9 +47,8 @@ useEffect(() => {
   return () => clearInterval(intervalId);
 }, [!newCards]);
 
-useEffect(() => {
-  console.log("playersCards changed:", playersCards);
-}, [playersCards]);
+
+
 const checkCards = async () => {
 
   try {
@@ -67,6 +67,19 @@ const checkCards = async () => {
   };
 };
 
+const joinGame = async () => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/v1/players?uuid=${localStorage.getItem('userId')}&game_id=${game}`, {
+      method: "POST"
+    });
+    const result = await response.json();
+    console.log(result)
+    return result;
+  } catch(error) {
+    console.log(error);
+  }
+};
+
 const assignBids = (data) => {
   data.forEach((bid) => {
     if (bid.tied === "true") {
@@ -81,13 +94,12 @@ const assignBids = (data) => {
   });
 };
 
-
 const delayedAfterGoodBidsReceived = async () => {
 setTimeout(() => {
   getCards(game);
   setDisplayResults(false);
   setShowBidButton(true);
-}, 10000);}
+}, 7000);}
 
 
 const makeBid = async (bid1,bid2,bid3) => {
@@ -95,8 +107,7 @@ const makeBid = async (bid1,bid2,bid3) => {
   try {
     const response = await fetch(`http://localhost:3000/api/v1/bids`, {
         method: "POST",
-        body: JSON.stringify({gameId:game, bid1: bid1, bid2: bid2, bid3: bid3, card1Id: cards[0].id, card2Id: cards[1].id, card3Id: cards[2].id, uuid: localStorage.getItem('userId'
-        )})
+        body: JSON.stringify({gameId:game, bid1: bid1, bid2: bid2, bid3: bid3, card1Id: cards[0].id, card2Id: cards[1].id, card3Id: cards[2].id, uuid: localStorage.getItem('userId')})
     });
     const result = await response.json();
     return result
@@ -113,11 +124,24 @@ const getCards = async (game) => {
     const  data = await results.json();
    setCards(data.cards)
    assignPendingsCards(data.cards)
+   assignCurrencies(data.currencies)
     return data
   } catch(error) {
     console.log(error)
   };
 };
+
+const assignCurrencies = (data) => {
+
+    if (data.player_one_uuid === localStorage.getItem('userId')) {
+      setPlayersCurrency(data.player_one_currency)
+      setOpponentsCurrency(data.player_two_currency)
+
+    } else {
+      setPlayersCurrency(data.player_two_currency)
+      setOpponentsCurrency(data.player_one_currency)
+    }
+  };
 
 function assignPendingsCards(cards) {
   const newObj = {};
@@ -136,6 +160,7 @@ function assignPendingsCards(cards) {
 
   if (!justLoaded){
     getCards(game)
+    joinGame(localStorage.getItem('userId'))
     setJustLoaded(true)
   }
 
@@ -156,7 +181,8 @@ function displayBid(bids, int) {
   }
 }
   return(
-    
+    <div>
+  <h2>Your Points:{playersCurrency}                  Opponents Points:{opponentsCurrency}  </h2>
 <div class="row">
   <div class="column">
     <img src={cards[0].image} alt="Snow" />
@@ -231,7 +257,7 @@ function displayBid(bids, int) {
     </div>
   </div>
 </div>
-
+</div>
 
   )
 }
