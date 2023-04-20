@@ -34,6 +34,7 @@ const [opponentsCards, setOpponentsCards] = useState([]);
 const [playersCurrency, setPlayersCurrency] = useState("0");
 const [opponentsCurrency, setOpponentsCurrency] = useState("0");
 const [showPlayersCards, setShowPlayersCards] = useState(true);
+const [draftOver, setDraftOver] = useState(false);
 
 useEffect(() => {
   let intervalId;
@@ -55,7 +56,14 @@ const checkCards = async () => {
     const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}&last_card=${cards[2].id}`, {
     });
     const json = await response.json();
-    if (json["complete"] === "true" ) {
+    if (json["draft_over"] === "true" ) {
+      setBids(json["bids"])
+      assignBids(json["bids"])
+      setNewCards(false);
+      setDisplayResults(true);
+      delayedAfterDraftOverReceived()
+    }
+    else if (json["complete"] === "true" ) {
         setBids(json["bids"])
         assignBids(json["bids"])
         setNewCards(false);
@@ -99,6 +107,12 @@ setTimeout(() => {
   getCards(game);
   setDisplayResults(false);
   setShowBidButton(true);
+}, 7000);}
+
+const delayedAfterDraftOverReceived = async () => {
+setTimeout(() => {
+  setDisplayResults(false);
+  setDraftOver(true);
 }, 7000);}
 
 
@@ -181,85 +195,88 @@ function displayBid(bids, int) {
   }
 }
   return(
+  <div>
+    <h2>Your Points:{playersCurrency} Opponents Points:{opponentsCurrency} </h2>
     <div>
-  <h2>Your Points:{playersCurrency}                  Opponents Points:{opponentsCurrency}  </h2>
-<div class="row">
-  <div class="column">
-    <img src={cards[0].image} alt="Snow" />
-    <TextField
-      id="outlined-basic"
-      label="Outlined"
-      variant="outlined"
-      value={bid1}
-      onChange={(event) => {
-        setBid1(event.target.value);
-      }}
-    />
-    {displayResults ? (
-      <div class="w3-container">
-        {displayBid(bids, 0)}
-      </div>
-    ) : null}
-  </div>
-  <div class="column">
-    <img src={cards[1].image} alt="Forest" />
-    <TextField
-      id="outlined-basic"
-      label="Outlined"
-      variant="outlined"
-      value={bid2}
-      onChange={(event) => {
-        setBid2(event.target.value);
-      }}
-    />
-    {showBidButton ? (
-      <Button onClick={() => bidButton(bid1, bid2, bid3)} variant="contained">
-        Place Bid
-      </Button>
-    ) : null}
-    {displayResults ? (
-      <div class="w3-container">
-        {displayBid(bids, 1)}
-      </div>
-    ) : null}
-  </div>
-  <div class="column">
-    <img src={cards[2].image} alt="Mountains" />
-    <TextField
-      id="outlined-basic"
-      label="Outlined"
-      variant="outlined"
-      value={bid3}
-      onChange={(event) => {
-        setBid3(event.target.value);
-      }}
-    />
-    {displayResults ? (
-      <div class="w3-container">
-        {displayBid(bids, 2)}
-      </div>
-    ) : null}
-  </div>
-  <div class="bottom">
-  <button onClick={() => setShowPlayersCards(!showPlayersCards)}>
-  {showPlayersCards ? "Show Opponent's Cards" : "Show Your Cards"}
-  </button>
-    <div className="grid-container">
-      {showPlayersCards ? (
-        playersCards.map((image) => (
-          <img src={image.image} alt={image.alt} />
-        ))
-      ) : (
-        opponentsCards.map((image) => (
-          <img src={image.image} alt={image.alt} />
-        ))
+      {draftOver ? null : (
+        <div class="row">
+          <div class="column">
+            <img src={cards[0].image} alt="Snow" />
+            <TextField
+              id="outlined-basic"
+              label="Outlined"
+              variant="outlined"
+              value={bid1}
+              onChange={(event) => {
+                setBid1(event.target.value);
+              }}
+            />
+            {displayResults ? (
+              <div class="w3-container">
+                {displayBid(bids, 0)}
+              </div>
+            ) : null}
+          </div>
+          <div class="column">
+            <img src={cards[1].image} alt="Forest" />
+            <TextField
+              id="outlined-basic"
+              label="Outlined"
+              variant="outlined"
+              value={bid2}
+              onChange={(event) => {
+                setBid2(event.target.value);
+              }}
+            />
+            {showBidButton ? (
+              <Button onClick={() => bidButton(bid1, bid2, bid3)} variant="contained">
+                Place Bid
+              </Button>
+            ) : null}
+            {displayResults ? (
+              <div class="w3-container">
+                {displayBid(bids, 1)}
+              </div>
+            ) : null}
+          </div>
+          <div class="column">
+            <img src={cards[2].image} alt="Mountains" />
+            <TextField
+              id="outlined-basic"
+              label="Outlined"
+              variant="outlined"
+              value={bid3}
+              onChange={(event) => {
+                setBid3(event.target.value);
+              }}
+            />
+            {displayResults ? (
+              <div class="w3-container">
+                {displayBid(bids, 2)}
+              </div>
+            ) : null}
+          </div>
+        </div>
       )}
+      <div class="bottom">
+        <button onClick={() => setShowPlayersCards(!showPlayersCards)}>
+          {showPlayersCards ? "Show Opponent's Cards" : "Show Your Cards"}
+        </button>
+        <div className="grid-container">
+          {showPlayersCards ? (
+            playersCards.map((image) => (
+              <img src={image.image} alt={image.alt} />
+            ))
+          ) : (
+            opponentsCards.map((image) => (
+              <img src={image.image} alt={image.alt} />
+            ))
+          )}
+        </div>
+      </div>
     </div>
   </div>
-</div>
-</div>
-
-  )
+)
 }
 
 export default Lobby;
