@@ -6,9 +6,14 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import { useNavigate } from "react-router-dom";
-
+import { v4 as uuidv4 } from 'uuid';
 
 const SelectSet = () => {
+
+  if (localStorage.getItem('userId') === null){
+    localStorage.setItem('userId', (uuidv4()));
+  }
+
   const [set, setSet]  = useState("RTR")
   const handleChange = (event) => {
      setSet(event.target.value )
@@ -22,7 +27,7 @@ const SelectSet = () => {
 
   const makeGame = async (set) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/v1/game?set=${set}`, {
+      const response = await fetch(`http://localhost:3000/api/v1/game?set=${set}&player_one_uuid=${localStorage.getItem('userId')}`, {
           method: "POST"
       });
       const result = await response.json();

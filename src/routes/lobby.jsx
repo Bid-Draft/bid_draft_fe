@@ -5,7 +5,7 @@ import '../App.css';
 import Button from '@mui/material/Button'; 
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { compose } from "@mui/system";
+import { Gallery } from "react-grid-gallery";
 
 
 
@@ -20,9 +20,9 @@ const [bid2, setBid2]  = useState("0")
 const [bid3, setBid3]  = useState("0")
 const [displayResults, setDisplayResults] = useState(false)
 const [cards, setCards]  = useState([
-  {id: 529, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130550&type=card'},
-  {id: 530, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=129465&type=card'},
-  {id: 531, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=129710&type=card'}])
+  {id: 529, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'},
+  {id: 530, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'},
+  {id: 531, image: 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'}])
 const [justLoaded, setJustLoaded] = useState(false)
 const [showBidButton, setShowBidButton] = useState(true)
 const [newCards, setNewCards] = useState(false)
@@ -31,16 +31,10 @@ const [bids, setBids] = useState([]);
 const [pendingCards, setPendingCards] = useState({});
 const [playersCards, setPlayersCards] = useState([]);
 const [opponentsCards, setOpponentsCards] = useState([]);
-
-
-
-// useEffect(() => {
-//   const interval = setInterval(() => { 
-//     checkCards();
-//   }, 4000);
-
-//   return () => clearInterval(interval);
-// }, []);
+const [playersCurrency, setPlayersCurrency] = useState("0");
+const [opponentsCurrency, setOpponentsCurrency] = useState("0");
+const [showPlayersCards, setShowPlayersCards] = useState(true);
+const [gameOver, setGameOver] = useState(false);
 
 useEffect(() => {
   let intervalId;
@@ -48,49 +42,79 @@ useEffect(() => {
   if (newCards) {
     intervalId = setInterval(() => {
       checkCards();
-    }, 4000);
+    }, 1000);
   }
 
   return () => clearInterval(intervalId);
 }, [!newCards]);
 
+
+
 const checkCards = async () => {
-  const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}`);
-  const json = await response.json();
-  if (json["complete"] === "true" ) {
-    // setBids(json["bids"])
-    // assignBids(json["bids"])
-    // setDisplayResults(true);
-    // delayCards()
 
+  try {
+    const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}&last_card=${cards[2].id}`, {
+    });
+    const json = await response.json();
+    if (json["draft_over"] === "true" ) {
+      console.log("dinger")
+      setBids(json["bids"])
+      assignBids(json["bids"])
+      setNewCards(false);
+      setDisplayResults(true);
+      // delayedAfterDraftOverReceived()
+    }
+    else if (json["complete"] === "true" ) {
+        setBids(json["bids"])
+        assignBids(json["bids"])
+        setNewCards(false);
+        setDisplayResults(true);
+        delayedAfterGoodBidsReceived()
+      }
 
-    setBids(json["bids"])
-    assignBids(json["bids"])
-    setNewCards(false);
-    setDisplayResults(true);
-    delayedAfterGoodBidsReceived()
+  } catch(error) {
+    console.log(error)
+  };
+};
+
+const joinGame = async () => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/v1/players?uuid=${localStorage.getItem('userId')}&game_id=${game}`, {
+      method: "POST"
+    });
+    const result = await response.json();
+    return result;
+  } catch(error) {
+    console.log(error);
   }
 };
 
-  const assignBids = (data) => {
-    data.forEach((bid)=>{
-      console.log("doin it")
-      if (bid.tied === "true") {
-        
-      } else if (bid.winner_uuid === localStorage.getItem('userId')) {
-        console.log("won");
-      } else {
-        console.log("lost")}
-    });
-  };
+const assignBids = (data) => {
+  data.forEach((bid) => {
+    if (bid.tied === "true") {
+      
+    } else if (bid.winner_uuid === localStorage.getItem('userId')) {
 
+      setPlayersCards((prevState) => [...prevState, pendingCards[bid.card_id]]);
+
+    } else {
+      setOpponentsCards((prevState) => [...prevState, pendingCards[bid.card_id]]);
+    }
+  });
+};
 
 const delayedAfterGoodBidsReceived = async () => {
 setTimeout(() => {
   getCards(game);
   setDisplayResults(false);
   setShowBidButton(true);
-}, 10000);}
+}, 7000);}
+
+// const delayedAfterDraftOverReceived = async () => {
+// setTimeout(() => {
+//   setDisplayResults(false);
+//   setGameOver(true);
+// }, 7000);}
 
 
 const makeBid = async (bid1,bid2,bid3) => {
@@ -98,8 +122,7 @@ const makeBid = async (bid1,bid2,bid3) => {
   try {
     const response = await fetch(`http://localhost:3000/api/v1/bids`, {
         method: "POST",
-        body: JSON.stringify({gameId:game, bid1: bid1, bid2: bid2, bid3: bid3, uuid: localStorage.getItem('userId'
-        )})
+        body: JSON.stringify({gameId:game, bid1: bid1, bid2: bid2, bid3: bid3, card1Id: cards[0].id, card2Id: cards[1].id, card3Id: cards[2].id, uuid: localStorage.getItem('userId')})
     });
     const result = await response.json();
     return result
@@ -116,11 +139,25 @@ const getCards = async (game) => {
     const  data = await results.json();
    setCards(data.cards)
    assignPendingsCards(data.cards)
+   assignCurrencies(data.currencies)
+   setGameOver(data.gameOver)
     return data
   } catch(error) {
     console.log(error)
   };
 };
+
+const assignCurrencies = (data) => {
+
+    if (data.player_one_uuid === localStorage.getItem('userId')) {
+      setPlayersCurrency(data.player_one_currency)
+      setOpponentsCurrency(data.player_two_currency)
+
+    } else {
+      setPlayersCurrency(data.player_two_currency)
+      setOpponentsCurrency(data.player_one_currency)
+    }
+  };
 
 function assignPendingsCards(cards) {
   const newObj = {};
@@ -129,7 +166,6 @@ function assignPendingsCards(cards) {
     const {id, ...rest} = obj;
     newObj[id] = rest;
   });
-  console.log(newObj)
   setPendingCards(newObj);
 }
    function bidButton(bid1,bid2,bid3) {
@@ -140,78 +176,109 @@ function assignPendingsCards(cards) {
 
   if (!justLoaded){
     getCards(game)
+    joinGame(localStorage.getItem('userId'))
     setJustLoaded(true)
   }
 
-  function displayBid(bids, int) {
-    let winner = "";
-    let loser = "";
-    if (bids[int].winner_uuid === localStorage.getItem('userId')) {
-      winner = "Your";
-      loser = "opponent's";
-    } else {
-      winner = "Opponent's";
-      loser = "your";
-    }
-    if (bids[int].tied === "true") {
-      return `tied with bids of ${bids[int].winner_bid}`;
-    } else {
-      return `${winner} bid of ${bids[int].winner_bid} beat ${loser} bid of ${bids[int].loser_bid}`;
-    }
+function displayBid(bids, int) {
+  let winner = "";
+  let loser = "";
+  if (bids[int].winner_uuid === localStorage.getItem('userId')) {
+    winner = "Your";
+    loser = "opponent's";
+  } else {
+    winner = "Opponent's";
+    loser = "your";
   }
-  return(
-    
-    <div class="row">
-  <div class="column">
-    <img src={cards[0].image} alt="Snow"></img>
-    <TextField id="outlined-basic" label="Outlined" variant="outlined" value= {bid1} 
-    onChange= {(event) => {
-      setBid1(event.target.value);
-    }}/>
-    {displayResults ? (
-  <div class="w3-container">
-    {displayBid(bids,0)}
-  </div>
-) : null}
-  </div>
-  <div class="column"  >
-    <img src={cards[1].image} alt="Forest"></img>
-    <TextField id="outlined-basic" label="Outlined" variant="outlined" value= {bid2} 
-        onChange= {(event) => {
-          setBid2(event.target.value);
-        }}/>
-{showBidButton ?     
-  <Button
-    onClick={() => bidButton(bid1, bid2, bid3)}
-    variant="contained"
-  >
-    Place Bid
-  </Button> 
-  :    
-  null
+  if (bids[int].tied === "true") {
+    return `tied with bids of ${bids[int].winner_bid}`;
+  } else {
+    return `${winner} bid of ${bids[int].winner_bid} beat ${loser} bid of ${bids[int].loser_bid}`;
+  }
 }
-{displayResults ? (
-    <div class="w3-container">
-    {displayBid(bids,1)}
+  return(
+  <div>
+    <h2>Your Points:{playersCurrency} Opponents Points:{opponentsCurrency} </h2>
+    <div>
+      {gameOver ? null : (
+        <div class="row">
+          <div class="column">
+            <img src={cards[0]?.image ? cards[0]?.image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card' } alt="Snow" />
+            <TextField
+              id="outlined-basic"
+              label="Outlined"
+              variant="outlined"
+              value={bid1}
+              onChange={(event) => {
+                setBid1(event.target.value);
+              }}
+            />
+            {displayResults ? (
+              <div class="w3-container">
+                {displayBid(bids, 0)}
+              </div>
+            ) : null}
+          </div>
+          <div class="column">
+            <img src={cards[1]?.image ? cards[1]?.image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'} alt="Forest" />
+            <TextField
+              id="outlined-basic"
+              label="Outlined"
+              variant="outlined"
+              value={bid2}
+              onChange={(event) => {
+                setBid2(event.target.value);
+              }}
+            />
+            {showBidButton ? (
+              <Button onClick={() => bidButton(bid1, bid2, bid3)} variant="contained">
+                Place Bid
+              </Button>
+            ) : null}
+            {displayResults ? (
+              <div class="w3-container">
+                {displayBid(bids, 1)}
+              </div>
+            ) : null}
+          </div>
+          <div class="column">
+            <img src={cards[2]?.image ? cards[2]?.image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'} alt="Mountains" />
+            <TextField
+              id="outlined-basic"
+              label="Outlined"
+              variant="outlined"
+              value={bid3}
+              onChange={(event) => {
+                setBid3(event.target.value);
+              }}
+            />
+            {displayResults ? (
+              <div class="w3-container">
+                {displayBid(bids, 2)}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
+      <div class="bottom">
+        <button onClick={() => setShowPlayersCards(!showPlayersCards)}>
+          {showPlayersCards ? "Show Opponent's Cards" : "Show Your Cards"}
+        </button>
+        <div className="grid-container">
+          {showPlayersCards ? (
+            playersCards?.map((image) => (
+              <img src={image?.image} alt={image?.alt} />
+            ))
+          ) : (
+            opponentsCards?.map((image) => (
+              <img src={image?.image} alt={image?.alt} />
+            ))
+          )}
+        </div>
+      </div>
+    </div>
   </div>
-) : null}
-
-  </div>
-  <div class="column">
-    <img src={cards[2].image} alt="Mountains"></img>
-    <TextField id="outlined-basic" label="Outlined" variant="outlined" value= {bid3}
-        onChange= {(event) => {
-          setBid3(event.target.value);
-        }}/>
-        {displayResults ? (
-    <div class="w3-container">
-      {displayBid(bids,2)}
-  </div>
-) : null}
-  </div>
-</div>
-
-  )
+)
 }
 
 export default Lobby;
