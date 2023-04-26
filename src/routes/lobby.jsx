@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Gallery } from "react-grid-gallery";
+import DeckStringGenerator from "../components/deck_string_generator"
 
 
 
@@ -62,7 +63,6 @@ const checkCards = async () => {
       assignBids(json["bids"])
       setNewCards(false);
       setDisplayResults(true);
-      // delayedAfterDraftOverReceived()
     }
     else if (json["complete"] === "true" ) {
         setBids(json["bids"])
@@ -109,12 +109,6 @@ setTimeout(() => {
   setDisplayResults(false);
   setShowBidButton(true);
 }, 7000);}
-
-// const delayedAfterDraftOverReceived = async () => {
-// setTimeout(() => {
-//   setDisplayResults(false);
-//   setGameOver(true);
-// }, 7000);}
 
 
 const makeBid = async (bid1,bid2,bid3) => {
@@ -168,11 +162,17 @@ function assignPendingsCards(cards) {
   });
   setPendingCards(newObj);
 }
-   function bidButton(bid1,bid2,bid3) {
+
+function bidButton(bid1,bid2,bid3) {
     makeBid(bid1,bid2,bid3)  
     setShowBidButton(false)
     setNewCards(true)
-  }
+}
+
+function copyToClipboardButton(playersCards) {
+  const string = DeckStringGenerator(playersCards);
+  navigator.clipboard.writeText(string)
+}
 
   if (!justLoaded){
     getCards(game)
@@ -264,6 +264,9 @@ function displayBid(bids, int) {
         <button onClick={() => setShowPlayersCards(!showPlayersCards)}>
           {showPlayersCards ? "Show Opponent's Cards" : "Show Your Cards"}
         </button>
+        <Button onClick={() => copyToClipboardButton(playersCards)} variant="contained">
+                Copy to Clipboard
+        </Button>
         <div className="grid-container">
           {showPlayersCards ? (
             playersCards?.map((image) => (
