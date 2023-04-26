@@ -34,7 +34,7 @@ const [opponentsCards, setOpponentsCards] = useState([]);
 const [playersCurrency, setPlayersCurrency] = useState("0");
 const [opponentsCurrency, setOpponentsCurrency] = useState("0");
 const [showPlayersCards, setShowPlayersCards] = useState(true);
-const [draftOver, setDraftOver] = useState(false);
+const [gameOver, setGameOver] = useState(false);
 
 useEffect(() => {
   let intervalId;
@@ -57,11 +57,12 @@ const checkCards = async () => {
     });
     const json = await response.json();
     if (json["draft_over"] === "true" ) {
+      console.log("dinger")
       setBids(json["bids"])
       assignBids(json["bids"])
       setNewCards(false);
       setDisplayResults(true);
-      delayedAfterDraftOverReceived()
+      // delayedAfterDraftOverReceived()
     }
     else if (json["complete"] === "true" ) {
         setBids(json["bids"])
@@ -70,7 +71,7 @@ const checkCards = async () => {
         setDisplayResults(true);
         delayedAfterGoodBidsReceived()
       }
-      console.log(draftOver)
+
   } catch(error) {
     console.log(error)
   };
@@ -109,11 +110,11 @@ setTimeout(() => {
   setShowBidButton(true);
 }, 7000);}
 
-const delayedAfterDraftOverReceived = async () => {
-setTimeout(() => {
-  setDisplayResults(false);
-  setDraftOver(true);
-}, 7000);}
+// const delayedAfterDraftOverReceived = async () => {
+// setTimeout(() => {
+//   setDisplayResults(false);
+//   setGameOver(true);
+// }, 7000);}
 
 
 const makeBid = async (bid1,bid2,bid3) => {
@@ -139,6 +140,7 @@ const getCards = async (game) => {
    setCards(data.cards)
    assignPendingsCards(data.cards)
    assignCurrencies(data.currencies)
+   setGameOver(data.gameOver)
     return data
   } catch(error) {
     console.log(error)
@@ -198,10 +200,10 @@ function displayBid(bids, int) {
   <div>
     <h2>Your Points:{playersCurrency} Opponents Points:{opponentsCurrency} </h2>
     <div>
-      {draftOver ? null : (
+      {gameOver ? null : (
         <div class="row">
           <div class="column">
-            <img src={cards[0].image ? cards[0].image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card' } alt="Snow" />
+            <img src={cards[0]?.image ? cards[0]?.image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card' } alt="Snow" />
             <TextField
               id="outlined-basic"
               label="Outlined"
@@ -218,7 +220,7 @@ function displayBid(bids, int) {
             ) : null}
           </div>
           <div class="column">
-            <img src={cards[1].image ? cards[1].image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'} alt="Forest" />
+            <img src={cards[1]?.image ? cards[1]?.image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'} alt="Forest" />
             <TextField
               id="outlined-basic"
               label="Outlined"
@@ -240,7 +242,7 @@ function displayBid(bids, int) {
             ) : null}
           </div>
           <div class="column">
-            <img src={cards[2].image ? cards[2].image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'} alt="Mountains" />
+            <img src={cards[2]?.image ? cards[2]?.image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'} alt="Mountains" />
             <TextField
               id="outlined-basic"
               label="Outlined"
@@ -264,12 +266,12 @@ function displayBid(bids, int) {
         </button>
         <div className="grid-container">
           {showPlayersCards ? (
-            playersCards.map((image) => (
-              <img src={image.image} alt={image.alt} />
+            playersCards?.map((image) => (
+              <img src={image?.image} alt={image?.alt} />
             ))
           ) : (
-            opponentsCards.map((image) => (
-              <img src={image.image} alt={image.alt} />
+            opponentsCards?.map((image) => (
+              <img src={image?.image} alt={image?.alt} />
             ))
           )}
         </div>
