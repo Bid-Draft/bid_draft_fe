@@ -201,7 +201,7 @@ function displayBid(bids, int) {
       {draftOver ? null : (
         <div class="row">
           <div class="column">
-            <img src={cards[0].image} alt="Snow" />
+            <img src={cards[0].image ? cards[0].image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card' } alt="Snow" />
             <TextField
               id="outlined-basic"
               label="Outlined"
@@ -218,7 +218,7 @@ function displayBid(bids, int) {
             ) : null}
           </div>
           <div class="column">
-            <img src={cards[1].image} alt="Forest" />
+            <img src={cards[1].image ? cards[1].image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'} alt="Forest" />
             <TextField
               id="outlined-basic"
               label="Outlined"
@@ -240,7 +240,7 @@ function displayBid(bids, int) {
             ) : null}
           </div>
           <div class="column">
-            <img src={cards[2].image} alt="Mountains" />
+            <img src={cards[2].image ? cards[2].image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'} alt="Mountains" />
             <TextField
               id="outlined-basic"
               label="Outlined"
