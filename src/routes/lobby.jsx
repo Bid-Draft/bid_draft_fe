@@ -42,7 +42,7 @@ useEffect(() => {
   if (newCards) {
     intervalId = setInterval(() => {
       checkCards();
-    }, 4000);
+    }, 1000);
   }
 
   return () => clearInterval(intervalId);
@@ -70,6 +70,7 @@ const checkCards = async () => {
         setDisplayResults(true);
         delayedAfterGoodBidsReceived()
       }
+      console.log(draftOver)
   } catch(error) {
     console.log(error)
   };
@@ -81,7 +82,6 @@ const joinGame = async () => {
       method: "POST"
     });
     const result = await response.json();
-    console.log(result)
     return result;
   } catch(error) {
     console.log(error);
