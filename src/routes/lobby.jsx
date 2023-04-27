@@ -108,7 +108,7 @@ setTimeout(() => {
   getCards(game);
   setDisplayResults(false);
   setShowBidButton(true);
-}, 7000);}
+}, 3000);}
 
 
 const makeBid = async (bid1,bid2,bid3) => {
