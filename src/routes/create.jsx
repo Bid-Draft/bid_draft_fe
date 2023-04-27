@@ -61,7 +61,7 @@ const SelectSet = () => {
     <MenuItem value={"ZNR"}>ZNR</MenuItem>
     <MenuItem value={"IKO"}>IKO</MenuItem>
     <MenuItem value={"M21"}>M21</MenuItem>
-    <MenuItem value={"TBD"}>TBD</MenuItem>
+    <MenuItem value={"THB"}>THB</MenuItem>
     <MenuItem value={"ELD"}>ELD</MenuItem>
     <MenuItem value={"M20"}>M20</MenuItem>
     <MenuItem value={"WAR"}>WAR</MenuItem>
@@ -94,7 +94,7 @@ const SelectSet = () => {
     <MenuItem value={"M13"}>M13</MenuItem>
     <MenuItem value={"AVR"}>AVR</MenuItem>
     <MenuItem value={"DKA"}>DKA</MenuItem>
-    <MenuItem value={"INS"}>INS</MenuItem>
+    <MenuItem value={"ISD"}>ISD</MenuItem>
     <MenuItem value={"M12"}>M12</MenuItem>
   </Select>
   <Button 

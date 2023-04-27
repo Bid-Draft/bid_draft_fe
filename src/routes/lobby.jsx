@@ -36,20 +36,33 @@ const [playersCurrency, setPlayersCurrency] = useState("0");
 const [opponentsCurrency, setOpponentsCurrency] = useState("0");
 const [showPlayersCards, setShowPlayersCards] = useState(true);
 const [gameOver, setGameOver] = useState(false);
+const [timeLeft, setTimeLeft] = useState(60)
+const game = useParams().gameId
+const [checkTime, setCheckTime] = useState(2000)
+const [checkCount, setCheckCount] = useState(0);
+const [afk, setAfk] = useState(0);
+
 
 useEffect(() => {
   let intervalId;
 
-  if (newCards) {
+  if (newCards && !afk) {
     intervalId = setInterval(() => {
-      checkCards();
-    }, 1000);
+    checkCards();
+    const prevCount = checkCount
+    setCheckCount(prevCount => prevCount + 1)
+    console.log(checkCount)
+    if (checkCount === 150) {
+      setCheckTime(30000);
+    }
+    if (checkCount === 170) {
+      setAfk(true);
+    };
+    }, checkTime);
   }
 
   return () => clearInterval(intervalId);
-}, [!newCards]);
-
-
+}, [newCards, checkCount, checkTime, afk]);
 
 const checkCards = async () => {
 
@@ -57,14 +70,16 @@ const checkCards = async () => {
     const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}&last_card=${cards[2].id}`, {
     });
     const json = await response.json();
-    if (json["draft_over"] === "true" ) {
-      console.log("dinger")
-      setBids(json["bids"])
-      assignBids(json["bids"])
-      setNewCards(false);
-      setDisplayResults(true);
-    }
-    else if (json["complete"] === "true" ) {
+    // if (json["draft_over"] === "true" ) {
+    //   console.log("dinger")
+    //   setBids(json["bids"])
+    //   assignBids(json["bids"])
+    //   setNewCards(false);
+    //   setDisplayResults(true);
+    // }
+    if (json["complete"] === "true" ) {
+        setCheckCount(0)
+        setCheckTime(2000)
         setBids(json["bids"])
         assignBids(json["bids"])
         setNewCards(false);
@@ -124,7 +139,6 @@ const makeBid = async (bid1,bid2,bid3) => {
     console.log(error)
   };
 };
-const game = useParams().gameId
 
 const getCards = async (game) => {
   try {
