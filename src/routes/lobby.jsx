@@ -45,6 +45,7 @@ const [afk, setAfk] = useState(0);
 const [cardsHandled, setCardsHandled] = useState(0);
 const [openSnackbar, setOpenSnackbar] = useState(false);
 const [snackbarMessage, setSnackbarMessage] = useState('');
+const [sideboardCards, setSideboardCards] = useState([]);
 
 useEffect(() => {
   let intervalId;
@@ -94,6 +95,19 @@ const checkCards = async () => {
   } catch(error) {
     console.log(error)
   };
+};
+
+const handleCardMove = (card) => {
+  const playerCard = playersCards.find((c) => c.id === card.id);
+  const sideboardCard = sideboardCards.find((c) => c.id === card.id);
+  console.log(card.id)
+  if (playerCard) {
+    setPlayersCards(playersCards.filter((c) => c.id !== card.id));
+    setSideboardCards([...sideboardCards, card]);
+  } else if (sideboardCard) {
+    setSideboardCards(sideboardCards.filter((c) => c.id !== card.id));
+    setPlayersCards([...playersCards, card]);
+  }
 };
 
 const joinGame = async () => {
@@ -149,6 +163,7 @@ const getCards = async (game) => {
     const results = await fetch (`http://localhost:3000/api/v1/cards?id=${game}`);
   
     const  data = await results.json();
+    console.log(data)
    setCards(data.cards)
    assignPendingsCards(data.cards)
    assignCurrencies(data.currencies)
@@ -172,21 +187,25 @@ const assignCurrencies = (data) => {
     }
   };
 
-function assignPendingsCards(cards) {
-  const newObj = {};
-  
-  cards.forEach(obj => {
-    const {id, ...rest} = obj;
-    newObj[id] = rest;
-  });
-  setPendingCards(newObj);
-}
+  function assignPendingsCards(cards) {
+    const newObj = {};
+    
+    cards.forEach(obj => {
+      newObj[obj.id] = obj;
+    });
+    setPendingCards(newObj);
+  }
 
 function bidButton(bid1, bid2, bid3) {
-  if (isNaN(bid1) || isNaN(bid2) || isNaN(bid3) || bid1 < 0 || bid2 < 0 || bid3 < 0) {
+  const intBid1 = parseInt(bid1);
+  const intBid2 = parseInt(bid2);
+  const intBid3 = parseInt(bid3);
+  const parsedPlayersCurrency = parseInt(playersCurrency);
+
+  if (isNaN(intBid1) || isNaN(intBid2) || isNaN(intBid3) || intBid1 < 0 || intBid2 < 0 || intBid3 < 0) {
     setSnackbarMessage('Please enter valid integers for all bids.');
     setOpenSnackbar(true);
-  } else if (bid1 + bid2 + bid3 > playersCurrency ){
+  } else if (intBid1 + intBid2 + intBid3 > parsedPlayersCurrency) {
     setSnackbarMessage('The sum of your bids cannot exceed your available points.');
     setOpenSnackbar(true);
   } else {
@@ -196,10 +215,11 @@ function bidButton(bid1, bid2, bid3) {
   }
 }
 
-function copyToClipboardButton(playersCards) {
-  const string = DeckStringGenerator(playersCards);
-  navigator.clipboard.writeText(string)
+function copyToClipboardButton(playersCards, sideboardCards) {
+  const string = DeckStringGenerator(playersCards, sideboardCards);
+  navigator.clipboard.writeText(string);
 }
+
 
   if (!justLoaded){
     getCards(game)
@@ -225,103 +245,149 @@ function displayBid(bids, int) {
 }
   return(
     
+<div>
+  <h2>
+    Your Points:{playersCurrency} Opponents Points:{opponentsCurrency}{" "}
+  </h2>
+  Cards: {cardsHandled + 3} / 90
   <div>
-    <h2>Your Points:{playersCurrency} Opponents Points:{opponentsCurrency} </h2> Cards: {cardsHandled + 3} / 90
-    <div>
-      {gameOver ? null : (
-        <div class="row">
-          <div class="column">
-            <img src={cards[0]?.image ? cards[0]?.image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card' } alt="Snow" />
-            <TextField
-              id="outlined-basic"
-              label="Outlined"
-              variant="outlined"
-              value={bid1}
-              onChange={(event) => {
-                setBid1(event.target.value);
-              }}
-            />
-            {displayResults ? (
-              <div class="w3-container">
-                {displayBid(bids, 0)}
-              </div>
-            ) : null}
-          </div>
-          <div class="column">
-            <img src={cards[1]?.image ? cards[1]?.image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'} alt="Forest" />
-            <TextField
-              id="outlined-basic"
-              label="Outlined"
-              variant="outlined"
-              value={bid2}
-              onChange={(event) => {
-                setBid2(event.target.value);
-              }}
-            />
-            {showBidButton ? (
-              <Button onClick={() => bidButton(bid1, bid2, bid3)} variant="contained">
-                Place Bid
-              </Button>
-            ) : null}
-            {displayResults ? (
-              <div class="w3-container">
-                {displayBid(bids, 1)}
-              </div>
-            ) : null}
-          </div>
-          <div class="column">
-            <img src={cards[2]?.image ? cards[2]?.image : 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card'} alt="Mountains" />
-            <TextField
-              id="outlined-basic"
-              label="Outlined"
-              variant="outlined"
-              value={bid3}
-              onChange={(event) => {
-                setBid3(event.target.value);
-              }}
-            />
-            {displayResults ? (
-              <div class="w3-container">
-                {displayBid(bids, 2)}
-              </div>
-            ) : null}
-          </div>
+    {gameOver ? null : (
+      <div className="row">
+        <div className="column">
+          <img
+            src={
+              cards[0]?.image
+                ? cards[0]?.image
+                : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
+            }
+            alt="Snow"
+          />
+          <TextField
+            id="outlined-basic"
+            label="Outlined"
+            variant="outlined"
+            value={bid1}
+            onChange={(event) => {
+              setBid1(event.target.value);
+            }}
+          />
+          {displayResults ? (
+            <div className="w3-container">{displayBid(bids, 0)}</div>
+          ) : null}
         </div>
-      )}
-      <div class="bottom">
-        <button onClick={() => setShowPlayersCards(!showPlayersCards)}>
-          {showPlayersCards ? "Show Opponent's Cards" : "Show Your Cards"}
-        </button>
-        <Button onClick={() => copyToClipboardButton(playersCards)} variant="contained">
-                Copy to Clipboard
-        </Button>
-        <div className="grid-container">
-          {showPlayersCards ? (
-            playersCards?.map((image) => (
-              <img src={image?.image} alt={image?.alt} />
-            ))
-          ) : (
-            opponentsCards?.map((image) => (
-              <img src={image?.image} alt={image?.alt} />
-            ))
-          )}
+        <div className="column">
+          <img
+            src={
+              cards[1]?.image
+                ? cards[1]?.image
+                : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
+            }
+            alt="Forest"
+          />
+          <TextField
+            id="outlined-basic"
+            label="Outlined"
+            variant="outlined"
+            value={bid2}
+            onChange={(event) => {
+              setBid2(event.target.value);
+            }}
+          />
+          {showBidButton ? (
+            <Button
+              onClick={() => bidButton(bid1, bid2, bid3)}
+              variant="contained"
+            >
+              Place Bid
+            </Button>
+          ) : null}
+          {displayResults ? (
+            <div className="w3-container">{displayBid(bids, 1)}</div>
+          ) : null}
         </div>
-        <div>
-          <Snackbar
-            open={openSnackbar}
-            autoHideDuration={6000}
-            onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          >
-            <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
-              {snackbarMessage}
-            </Alert>
-          </Snackbar>
+        <div className="column">
+          <img
+            src={
+              cards[2]?.image
+                ? cards[2]?.image
+                : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
+            }
+            alt="Mountains"
+          />
+          <TextField
+            id="outlined-basic"
+            label="Outlined"
+            variant="outlined"
+            value={bid3}
+            onChange={(event) => {
+              setBid3(event.target.value);
+            }}
+          />
+          {displayResults ? (
+            <div className="w3-container">{displayBid(bids, 2)}</div>
+          ) : null}
         </div>
       </div>
-    </div>
-  </div>
-)
+    )}
+    <div className="bottom">
+      <button onClick={() => setShowPlayersCards(!showPlayersCards)}>
+        {showPlayersCards
+          ? "Show Opponent's Cards"
+          : "Show Your Cards"}
+      </button>
+      <Button
+        onClick={() => copyToClipboardButton(playersCards, sideboardCards)}
+        variant="contained"
+      >
+        Copy to Clipboard
+      </Button>
+      {showPlayersCards ? (
+        <div className="grid-container">
+          <div>
+            <h3>Main Deck</h3>
+            {playersCards?.map((image) => (
+              <img
+                key={image.id}
+                src={image?.image}
+                alt={image?.alt}
+                onClick={() => handleCardMove(image)}
+              />
+            ))}
+          </div>
+          <div>
+            <h3>Side Board</h3>
+            {sideboardCards?.map((image) => (
+                           <img
+                           key={image.id}
+                           src={image?.image}
+                           alt={image?.alt}
+                           onClick={() => handleCardMove(image)}
+                         />
+                       ))}
+                     </div>
+                   </div>
+                 ) : (
+                   opponentsCards?.map((image) => (
+                     <img src={image?.image} alt={image?.alt} />
+                   ))
+                 )}
+               </div>
+               <div>
+                 <Snackbar
+                   open={openSnackbar}
+                   autoHideDuration={6000}
+                   onClose={handleCloseSnackbar}
+                   anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                 >
+                   <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+                     {snackbarMessage}
+                   </Alert>
+                 </Snackbar>
+               </div>
+             </div>
+           </div>
+  )           
+
 }
 
 export default Lobby;
