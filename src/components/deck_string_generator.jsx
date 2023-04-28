@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DeckStringGenerator = (playersCards) => {
+const DeckStringGenerator = (playersCards, sideboardCards) => {
   const objectBuilder = (cards) => {
     let result = {};
     cards.forEach(card => {
@@ -22,10 +22,15 @@ const DeckStringGenerator = (playersCards) => {
     return final;
   };
 
-  const object = objectBuilder(playersCards);
-  const string = stringBuilder(object);
+  const mainDeckObject = objectBuilder(playersCards);
+  const mainDeckString = stringBuilder(mainDeckObject);
 
-  return string;
+  const sideboardObject = objectBuilder(sideboardCards);
+  const sideboardString = stringBuilder(sideboardObject);
+
+  const finalString = mainDeckString + "\nSideboard\n" + sideboardString;
+  console.log(finalString)
+  return finalString;
 };
 
 export default DeckStringGenerator;
