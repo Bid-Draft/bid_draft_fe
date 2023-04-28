@@ -123,6 +123,7 @@ const joinGame = async () => {
 };
 
 const assignBids = (data) => {
+  console.log(playersCards)
   data.forEach((bid) => {
     if (bid.tied === "true") {
       
@@ -163,7 +164,6 @@ const getCards = async (game) => {
     const results = await fetch (`http://localhost:3000/api/v1/cards?id=${game}`);
   
     const  data = await results.json();
-    console.log(data)
    setCards(data.cards)
    assignPendingsCards(data.cards)
    assignCurrencies(data.currencies)
@@ -174,6 +174,32 @@ const getCards = async (game) => {
     console.log(error)
   };
 };
+
+const getPlayersCards = async (game) => {
+  try {
+    const results = await fetch (`http://localhost:3000/api/v1/cards/players?id=${game}`);
+  
+    const  data = await results.json();
+    return data
+  } catch(error) {
+    console.log(error)
+  };
+};
+
+const assignCardsAfterRefresh= (data) => {
+  console.log(data)
+  if (data.player_one_uuid === localStorage.getItem('userId')) {
+    setPlayersCards(data.player_one_cards)
+    setOpponentsCards(data.player_two_cards)
+    console.log(playersCards)
+  } else {
+    setPlayersCards(data.player_two_cards)
+    setOpponentsCards(data.player_one_cards)
+  }
+
+}
+
+
 
 const assignCurrencies = (data) => {
 
@@ -221,11 +247,18 @@ function copyToClipboardButton(playersCards, sideboardCards) {
 }
 
 
+async function initializeGame() {
   if (!justLoaded){
-    getCards(game)
-    joinGame(localStorage.getItem('userId'))
-    setJustLoaded(true)
+    const cards = await getPlayersCards(game);
+    console.log(cards);
+    assignCardsAfterRefresh(cards);
+    getCards(game);
+    joinGame(localStorage.getItem('userId'));
+    setJustLoaded(true);
   }
+}
+
+initializeGame()
 
 function displayBid(bids, int) {
   let winner = "";
