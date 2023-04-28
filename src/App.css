@@ -155,4 +155,9 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-
+.bid-input {
+  margin-top: 1rem;
+  font-size: 16px;
+  padding: 8px;
+  border: 1px solid #6CB4EE;
+}

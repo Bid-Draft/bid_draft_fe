@@ -271,11 +271,11 @@ function displayBid(bids, int) {
                 }
                 alt="Snow"
               />
-              <TextField
+              <input class = "bid-input"
+                type="text"
                 id="outlined-basic"
-                variant="outlined"
                 value={bid1}
-                onChange={(event) => {
+                onInput={(event) => {
                   setBid1(event.target.value);
                 }}
               />
@@ -294,11 +294,11 @@ function displayBid(bids, int) {
                 }
                 alt="Forest"
               />
-              <TextField
+              <input class = "bid-input"
+                type="text"
                 id="outlined-basic"
-                variant="outlined"
                 value={bid2}
-                onChange={(event) => {
+                onInput={(event) => {
                   setBid2(event.target.value);
                 }}
               />
@@ -325,14 +325,14 @@ function displayBid(bids, int) {
               }
               alt="Mountains"
             />
-            <TextField
-              id="outlined-basic"
-              variant="outlined"
-              value={bid3}
-              onChange={(event) => {
-                setBid3(event.target.value);
-              }}
-            />
+              <input class = "bid-input"
+                type="text"
+                id="outlined-basic"
+                value={bid3}
+                onInput={(event) => {
+                  setBid3(event.target.value);
+                }}
+              />
               {displayResults ? (
               <div className="w3-container">{displayBid(bids, 2)}</div>
               ) : null}
