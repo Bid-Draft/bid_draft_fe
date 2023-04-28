@@ -7,7 +7,8 @@ import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Gallery } from "react-grid-gallery";
 import DeckStringGenerator from "../components/deck_string_generator"
-
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 
 const Lobby = () => {
@@ -41,7 +42,9 @@ const game = useParams().gameId
 const [checkTime, setCheckTime] = useState(2000)
 const [checkCount, setCheckCount] = useState(0);
 const [afk, setAfk] = useState(0);
-
+const [cardsHandled, setCardsHandled] = useState(0);
+const [openSnackbar, setOpenSnackbar] = useState(false);
+const [snackbarMessage, setSnackbarMessage] = useState('');
 
 useEffect(() => {
   let intervalId;
@@ -64,19 +67,20 @@ useEffect(() => {
   return () => clearInterval(intervalId);
 }, [newCards, checkCount, checkTime, afk]);
 
+const handleCloseSnackbar = (event, reason) => {
+  if (reason === 'clickaway') {
+    return;
+  }
+
+  setOpenSnackbar(false);
+};
+
 const checkCards = async () => {
 
   try {
     const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}&last_card=${cards[2].id}`, {
     });
     const json = await response.json();
-    // if (json["draft_over"] === "true" ) {
-    //   console.log("dinger")
-    //   setBids(json["bids"])
-    //   assignBids(json["bids"])
-    //   setNewCards(false);
-    //   setDisplayResults(true);
-    // }
     if (json["complete"] === "true" ) {
         setCheckCount(0)
         setCheckTime(2000)
@@ -149,6 +153,7 @@ const getCards = async (game) => {
    assignPendingsCards(data.cards)
    assignCurrencies(data.currencies)
    setGameOver(data.gameOver)
+   setCardsHandled(data.cardsHandled)
     return data
   } catch(error) {
     console.log(error)
@@ -177,10 +182,18 @@ function assignPendingsCards(cards) {
   setPendingCards(newObj);
 }
 
-function bidButton(bid1,bid2,bid3) {
-    makeBid(bid1,bid2,bid3)  
-    setShowBidButton(false)
-    setNewCards(true)
+function bidButton(bid1, bid2, bid3) {
+  if (isNaN(bid1) || isNaN(bid2) || isNaN(bid3) || bid1 < 0 || bid2 < 0 || bid3 < 0) {
+    setSnackbarMessage('Please enter valid integers for all bids.');
+    setOpenSnackbar(true);
+  } else if (bid1 + bid2 + bid3 > playersCurrency ){
+    setSnackbarMessage('The sum of your bids cannot exceed your available points.');
+    setOpenSnackbar(true);
+  } else {
+    makeBid(bid1, bid2, bid3);
+    setShowBidButton(false);
+    setNewCards(true);
+  }
 }
 
 function copyToClipboardButton(playersCards) {
@@ -211,8 +224,9 @@ function displayBid(bids, int) {
   }
 }
   return(
+    
   <div>
-    <h2>Your Points:{playersCurrency} Opponents Points:{opponentsCurrency} </h2>
+    <h2>Your Points:{playersCurrency} Opponents Points:{opponentsCurrency} </h2> Cards: {cardsHandled + 3} / 90
     <div>
       {gameOver ? null : (
         <div class="row">
@@ -291,6 +305,18 @@ function displayBid(bids, int) {
               <img src={image?.image} alt={image?.alt} />
             ))
           )}
+        </div>
+        <div>
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
         </div>
       </div>
     </div>
