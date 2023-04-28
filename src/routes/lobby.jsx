@@ -2,7 +2,7 @@ import * as React from "react";
 import { useLoaderData, useSearchParams, useParams } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import '../App.css';
-import Button from '@mui/material/Button'; 
+// import Button from '@mui/material/Button'; 
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Gallery } from "react-grid-gallery";
@@ -339,19 +339,19 @@ function displayBid(bids, int) {
               <div className="w3-container">{displayBid(bids, 1)}</div>
               ) : null}
             {showBidButton ? (
-              <Button class = "bid-button"
+              <button class = "bid-button"
                 onClick={() => bidButton(bid1, bid2, bid3)}
                 variant="contained"
               >
                 Place Bid
-              </Button>
+              </button>
             ) : null}
-                  <Button class = "copy-button"
+                  <button class = "copy-button"
         onClick={() => copyToClipboardButton(playersCards, sideboardCards)}
         variant="contained"
       >
         Copy to Clipboard
-      </Button>
+      </button>
             </div>
           </div>
           <div className="column">
