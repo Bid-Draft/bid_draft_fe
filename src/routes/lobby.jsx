@@ -306,7 +306,7 @@ function displayBid(bids, int) {
               <div className="w3-container">{displayBid(bids, 1)}</div>
               ) : null}
             {showBidButton ? (
-              <Button
+              <Button class = "bid-button"
                 onClick={() => bidButton(bid1, bid2, bid3)}
                 variant="contained"
               >
