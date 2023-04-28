@@ -313,6 +313,12 @@ function displayBid(bids, int) {
                 Place Bid
               </Button>
             ) : null}
+                  <Button class = "copy-button"
+        onClick={() => copyToClipboardButton(playersCards, sideboardCards)}
+        variant="contained"
+      >
+        Copy to Clipboard
+      </Button>
             </div>
           </div>
           <div className="column">
@@ -347,12 +353,7 @@ function displayBid(bids, int) {
           ? "Show Opponent's Cards"
           : "Show Your Cards"}
       </button>
-      <Button
-        onClick={() => copyToClipboardButton(playersCards, sideboardCards)}
-        variant="contained"
-      >
-        Copy to Clipboard
-      </Button>
+
       {showPlayersCards ? (
         <div className="grid-container">
           <div>
