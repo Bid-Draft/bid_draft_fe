@@ -380,17 +380,17 @@ function displayBid(bids, int) {
       </div>
     </div>
     )}
-    <div className="bottom">
-      <button onClick={() => setShowPlayersCards(!showPlayersCards)}>
+    <div>
+      <button className = "swap-cards-displayed" 
+        onClick={() => setShowPlayersCards(!showPlayersCards)}>
         {showPlayersCards
           ? "Show Opponent's Cards"
           : "Show Your Cards"}
       </button>
 
       {showPlayersCards ? (
-        <div className="grid-container">
-          <div>
-            <h3>Main Deck</h3>
+       <div>
+       <div className="grid-container">
             {playersCards?.map((image) => (
               <img
                 key={image.id}
@@ -399,25 +399,25 @@ function displayBid(bids, int) {
                 onClick={() => handleCardMove(image)}
               />
             ))}
+        </div>
+                <div className="grid-container">
+                {sideboardCards?.map((image) => (
+                  <img
+                    key={image.id}
+                    src={image?.image}
+                    alt={image?.alt}
+                    onClick={() => handleCardMove(image)}
+                  />
+                ))}
+            </div>
           </div>
-          <div>
-            <h3>Side Board</h3>
-            {sideboardCards?.map((image) => (
-                           <img
-                           key={image.id}
-                           src={image?.image}
-                           alt={image?.alt}
-                           onClick={() => handleCardMove(image)}
-                         />
-                       ))}
-                     </div>
-                   </div>
+      
                  ) : (
                    opponentsCards?.map((image) => (
                      <img src={image?.image} alt={image?.alt} />
                    ))
-                 )}
-               </div>
+      )}
+      </div>
                <div>
                  <Snackbar
                    open={openSnackbar}
