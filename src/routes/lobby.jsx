@@ -246,88 +246,100 @@ function displayBid(bids, int) {
   return(
     
 <div>
-  <h2>
-    Your Points:{playersCurrency} Opponents Points:{opponentsCurrency}{" "}
-  </h2>
-  Cards: {cardsHandled + 3} / 90
+<h2>
+  <div className="points-container">
+    <div className="your-points">Your Points: {playersCurrency}</div>
+    <div className = "cards-handled">
+    Cards: {cardsHandled + 3} / 90
+    </div>
+    <div className="opponents-points">
+      Opponents Points: {opponentsCurrency}
+    </div>
+  </div>
+</h2>
   <div>
     {gameOver ? null : (
-      <div className="row">
-        <div className="column">
-          <img
-            src={
-              cards[0]?.image
-                ? cards[0]?.image
-                : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
-            }
-            alt="Snow"
-          />
-          <TextField
-            id="outlined-basic"
-            label="Outlined"
-            variant="outlined"
-            value={bid1}
-            onChange={(event) => {
-              setBid1(event.target.value);
-            }}
-          />
-          {displayResults ? (
-            <div className="w3-container">{displayBid(bids, 0)}</div>
-          ) : null}
-        </div>
-        <div className="column">
-          <img
-            src={
-              cards[1]?.image
-                ? cards[1]?.image
-                : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
-            }
-            alt="Forest"
-          />
-          <TextField
-            id="outlined-basic"
-            label="Outlined"
-            variant="outlined"
-            value={bid2}
-            onChange={(event) => {
-              setBid2(event.target.value);
-            }}
-          />
-          {showBidButton ? (
-            <Button
-              onClick={() => bidButton(bid1, bid2, bid3)}
-              variant="contained"
-            >
-              Place Bid
-            </Button>
-          ) : null}
-          {displayResults ? (
-            <div className="w3-container">{displayBid(bids, 1)}</div>
-          ) : null}
-        </div>
-        <div className="column">
-          <img
-            src={
-              cards[2]?.image
-                ? cards[2]?.image
-                : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
-            }
-            alt="Mountains"
-          />
-          <TextField
-            id="outlined-basic"
-            label="Outlined"
-            variant="outlined"
-            value={bid3}
-            onChange={(event) => {
-              setBid3(event.target.value);
-            }}
-          />
-          {displayResults ? (
-            <div className="w3-container">{displayBid(bids, 2)}</div>
-          ) : null}
+      <div className="container">
+        <div className="row">
+          <div className="column">
+            <div className = "card-container">
+              <img
+                src={
+                  cards[0]?.image
+                    ? cards[0]?.image
+                    : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
+                }
+                alt="Snow"
+              />
+              <TextField
+                id="outlined-basic"
+                variant="outlined"
+                value={bid1}
+                onChange={(event) => {
+                  setBid1(event.target.value);
+                }}
+              />
+              {displayResults ? (
+              <div className="w3-container">{displayBid(bids, 0)}</div>
+              ) : null}
+            </div>
+          </div>
+          <div className="column">
+            <div className = "card-container">
+              <img
+                src={
+                  cards[1]?.image
+                    ? cards[1]?.image
+                    : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
+                }
+                alt="Forest"
+              />
+              <TextField
+                id="outlined-basic"
+                variant="outlined"
+                value={bid2}
+                onChange={(event) => {
+                  setBid2(event.target.value);
+                }}
+              />
+              {displayResults ? (
+              <div className="w3-container">{displayBid(bids, 1)}</div>
+              ) : null}
+            {showBidButton ? (
+              <Button
+                onClick={() => bidButton(bid1, bid2, bid3)}
+                variant="contained"
+              >
+                Place Bid
+              </Button>
+            ) : null}
+            </div>
+          </div>
+          <div className="column">
+            <div className = "card-container">  
+            <img
+              src={
+                cards[2]?.image
+                  ? cards[2]?.image
+                  : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
+              }
+              alt="Mountains"
+            />
+            <TextField
+              id="outlined-basic"
+              variant="outlined"
+              value={bid3}
+              onChange={(event) => {
+                setBid3(event.target.value);
+              }}
+            />
+              {displayResults ? (
+              <div className="w3-container">{displayBid(bids, 2)}</div>
+              ) : null}
+          </div>
         </div>
       </div>
+    </div>
     )}
     <div className="bottom">
       <button onClick={() => setShowPlayersCards(!showPlayersCards)}>
