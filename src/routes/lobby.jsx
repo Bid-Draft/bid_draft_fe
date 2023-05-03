@@ -33,6 +33,7 @@ const [bids, setBids] = useState([]);
 const [pendingCards, setPendingCards] = useState({});
 const [playersCards, setPlayersCards] = useState([]);
 const [opponentsCards, setOpponentsCards] = useState([]);
+const [opponentsSideboardCards, setOpponentsSideboardCards] = useState([]);
 const [playersCurrency, setPlayersCurrency] = useState("0");
 const [opponentsCurrency, setOpponentsCurrency] = useState("0");
 const [showPlayersCards, setShowPlayersCards] = useState(true);
@@ -100,15 +101,21 @@ const checkCards = async () => {
 const handleCardMove = (card) => {
   const playerCard = playersCards.find((c) => c.id === card.id);
   const sideboardCard = sideboardCards.find((c) => c.id === card.id);
-  console.log(card.id)
+  const opponentsCard = opponentsCards.find((c) => c.id === card.id);
+  const opponentsSideboardCard = opponentsSideboardCards.find((c) => c.id === card.id);
   if (playerCard) {
     setPlayersCards(playersCards.filter((c) => c.id !== card.id));
     setSideboardCards([...sideboardCards, card]);
   } else if (sideboardCard) {
     setSideboardCards(sideboardCards.filter((c) => c.id !== card.id));
     setPlayersCards([...playersCards, card]);
-  }
-};
+  } else if (opponentsCard) {
+    setOpponentsCards(opponentsCards.filter((c) => c.id !== card.id));
+    setOpponentsSideboardCards([...opponentsSideboardCards, card]);
+  }  else if (opponentsSideboardCard) {
+    setOpponentsSideboardCards(opponentsSideboardCards.filter((c) => c.id !== card.id));
+    setOpponentsCards([...opponentsCards, card]);
+};}
 
 const joinGame = async () => {
   try {
@@ -187,11 +194,9 @@ const getPlayersCards = async (game) => {
 };
 
 const assignCardsAfterRefresh= (data) => {
-  console.log(data)
   if (data.player_one_uuid === localStorage.getItem('userId')) {
     setPlayersCards(data.player_one_cards)
     setOpponentsCards(data.player_two_cards)
-    console.log(playersCards)
   } else {
     setPlayersCards(data.player_two_cards)
     setOpponentsCards(data.player_one_cards)
@@ -338,6 +343,7 @@ function displayBid(bids, int) {
               {displayResults ? (
               <div className="w3-container">{displayBid(bids, 1)}</div>
               ) : null}
+          <div className="buttons-container">
             {showBidButton ? (
               <button class = "bid-button"
                 onClick={() => bidButton(bid1, bid2, bid3)}
@@ -352,6 +358,7 @@ function displayBid(bids, int) {
       >
         Copy to Clipboard
       </button>
+              </div>
             </div>
           </div>
           <div className="column">
@@ -381,42 +388,67 @@ function displayBid(bids, int) {
     </div>
     )}
     <div>
-      <button className = "swap-cards-displayed" 
+      {/* <button className = "swap-cards-displayed" 
         onClick={() => setShowPlayersCards(!showPlayersCards)}>
         {showPlayersCards
           ? "Show Opponent's Cards"
           : "Show Your Cards"}
-      </button>
+      </button> */}
 
-      {showPlayersCards ? (
-       <div>
-       <div className="grid-container">
-            {playersCards?.map((image) => (
-              <img
-                key={image.id}
-                src={image?.image}
-                alt={image?.alt}
-                onClick={() => handleCardMove(image)}
-              />
-            ))}
-        </div>
-                <div className="grid-container">
-                {sideboardCards?.map((image) => (
-                  <img
-                    key={image.id}
-                    src={image?.image}
-                    alt={image?.alt}
-                    onClick={() => handleCardMove(image)}
-                  />
-                ))}
-            </div>
-          </div>
-      
-                 ) : (
-                   opponentsCards?.map((image) => (
-                     <img src={image?.image} alt={image?.alt} />
-                   ))
-      )}
+<div style={{ position: "relative" }}>
+  <button
+    className="swap-cards-button"
+    onClick={() => setShowPlayersCards(!showPlayersCards)}
+  >
+    {showPlayersCards
+      ? "Show Opponent's Cards"
+      : "Show Your Cards"}
+  </button>
+  <div className="deck-header">
+      Main Deck ({showPlayersCards ? playersCards?.length : opponentsCards?.length})
+    </div>
+  <div className="main-deck">
+  {showPlayersCards
+    ? playersCards?.map((image) => (
+        <img
+          key={image.id}
+          src={image?.image}
+          alt={image?.alt}
+          onClick={() => handleCardMove(image)}
+        />
+      ))
+    : opponentsCards?.map((image) => (
+        <img
+          key={image.id}
+          src={image?.image}
+          alt={image?.alt}
+          onClick={() => handleCardMove(image)}
+        />
+      ))}
+  </div>
+  <div className="deck-header">
+      Sideboard ({showPlayersCards ? sideboardCards?.length : opponentsSideboardCards?.length})
+    </div>
+  <div className="side-board">
+  {showPlayersCards
+    ? sideboardCards?.map((image) => (
+        <img
+          key={image.id}
+          src={image?.image}
+          alt={image?.alt}
+          onClick={() => handleCardMove(image)}
+        />
+      ))
+    : opponentsSideboardCards?.map((image) => (
+        <img
+          key={image.id}
+          src={image?.image}
+          alt={image?.alt}
+          onClick={() => handleCardMove(image)}
+        />
+      ))}
+  </div>
+</div>
       </div>
                <div>
                  <Snackbar
