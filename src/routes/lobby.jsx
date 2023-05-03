@@ -2,7 +2,6 @@ import * as React from "react";
 import { useLoaderData, useSearchParams, useParams } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import '../App.css';
-import Button from '@mui/material/Button'; 
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Gallery } from "react-grid-gallery";
@@ -33,6 +32,7 @@ const [bids, setBids] = useState([]);
 const [pendingCards, setPendingCards] = useState({});
 const [playersCards, setPlayersCards] = useState([]);
 const [opponentsCards, setOpponentsCards] = useState([]);
+const [opponentsSideboardCards, setOpponentsSideboardCards] = useState([]);
 const [playersCurrency, setPlayersCurrency] = useState("0");
 const [opponentsCurrency, setOpponentsCurrency] = useState("0");
 const [showPlayersCards, setShowPlayersCards] = useState(true);
@@ -100,15 +100,21 @@ const checkCards = async () => {
 const handleCardMove = (card) => {
   const playerCard = playersCards.find((c) => c.id === card.id);
   const sideboardCard = sideboardCards.find((c) => c.id === card.id);
-  console.log(card.id)
+  const opponentsCard = opponentsCards.find((c) => c.id === card.id);
+  const opponentsSideboardCard = opponentsSideboardCards.find((c) => c.id === card.id);
   if (playerCard) {
     setPlayersCards(playersCards.filter((c) => c.id !== card.id));
     setSideboardCards([...sideboardCards, card]);
   } else if (sideboardCard) {
     setSideboardCards(sideboardCards.filter((c) => c.id !== card.id));
     setPlayersCards([...playersCards, card]);
-  }
-};
+  } else if (opponentsCard) {
+    setOpponentsCards(opponentsCards.filter((c) => c.id !== card.id));
+    setOpponentsSideboardCards([...opponentsSideboardCards, card]);
+  }  else if (opponentsSideboardCard) {
+    setOpponentsSideboardCards(opponentsSideboardCards.filter((c) => c.id !== card.id));
+    setOpponentsCards([...opponentsCards, card]);
+};}
 
 const joinGame = async () => {
   try {
@@ -123,6 +129,7 @@ const joinGame = async () => {
 };
 
 const assignBids = (data) => {
+  console.log(playersCards)
   data.forEach((bid) => {
     if (bid.tied === "true") {
       
@@ -163,7 +170,6 @@ const getCards = async (game) => {
     const results = await fetch (`http://localhost:3000/api/v1/cards?id=${game}`);
   
     const  data = await results.json();
-    console.log(data)
    setCards(data.cards)
    assignPendingsCards(data.cards)
    assignCurrencies(data.currencies)
@@ -174,6 +180,30 @@ const getCards = async (game) => {
     console.log(error)
   };
 };
+
+const getPlayersCards = async (game) => {
+  try {
+    const results = await fetch (`http://localhost:3000/api/v1/cards/players?id=${game}`);
+  
+    const  data = await results.json();
+    return data
+  } catch(error) {
+    console.log(error)
+  };
+};
+
+const assignCardsAfterRefresh= (data) => {
+  if (data.player_one_uuid === localStorage.getItem('userId')) {
+    setPlayersCards(data.player_one_cards)
+    setOpponentsCards(data.player_two_cards)
+  } else {
+    setPlayersCards(data.player_two_cards)
+    setOpponentsCards(data.player_one_cards)
+  }
+
+}
+
+
 
 const assignCurrencies = (data) => {
 
@@ -221,11 +251,18 @@ function copyToClipboardButton(playersCards, sideboardCards) {
 }
 
 
+async function initializeGame() {
   if (!justLoaded){
-    getCards(game)
-    joinGame(localStorage.getItem('userId'))
-    setJustLoaded(true)
+    const cards = await getPlayersCards(game);
+    console.log(cards);
+    assignCardsAfterRefresh(cards);
+    getCards(game);
+    joinGame(localStorage.getItem('userId'));
+    setJustLoaded(true);
   }
+}
+
+initializeGame()
 
 function displayBid(bids, int) {
   let winner = "";
@@ -246,106 +283,141 @@ function displayBid(bids, int) {
   return(
     
 <div>
-  <h2>
-    Your Points:{playersCurrency} Opponents Points:{opponentsCurrency}{" "}
-  </h2>
-  Cards: {cardsHandled + 3} / 90
+<h2>
+  <div className="points-container">
+    <div className="your-points">Your Points: {playersCurrency}</div>
+    <div className = "cards-handled">
+    Cards: {cardsHandled + 3} / 90
+    </div>
+    <div className="opponents-points">
+      Opponents Points: {opponentsCurrency}
+    </div>
+  </div>
+</h2>
   <div>
     {gameOver ? null : (
-      <div className="row">
-        <div className="column">
-          <img
-            src={
-              cards[0]?.image
-                ? cards[0]?.image
-                : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
-            }
-            alt="Snow"
-          />
-          <TextField
-            id="outlined-basic"
-            label="Outlined"
-            variant="outlined"
-            value={bid1}
-            onChange={(event) => {
-              setBid1(event.target.value);
-            }}
-          />
-          {displayResults ? (
-            <div className="w3-container">{displayBid(bids, 0)}</div>
-          ) : null}
-        </div>
-        <div className="column">
-          <img
-            src={
-              cards[1]?.image
-                ? cards[1]?.image
-                : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
-            }
-            alt="Forest"
-          />
-          <TextField
-            id="outlined-basic"
-            label="Outlined"
-            variant="outlined"
-            value={bid2}
-            onChange={(event) => {
-              setBid2(event.target.value);
-            }}
-          />
-          {showBidButton ? (
-            <Button
-              onClick={() => bidButton(bid1, bid2, bid3)}
-              variant="contained"
-            >
-              Place Bid
-            </Button>
-          ) : null}
-          {displayResults ? (
-            <div className="w3-container">{displayBid(bids, 1)}</div>
-          ) : null}
-        </div>
-        <div className="column">
-          <img
-            src={
-              cards[2]?.image
-                ? cards[2]?.image
-                : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
-            }
-            alt="Mountains"
-          />
-          <TextField
-            id="outlined-basic"
-            label="Outlined"
-            variant="outlined"
-            value={bid3}
-            onChange={(event) => {
-              setBid3(event.target.value);
-            }}
-          />
-          {displayResults ? (
-            <div className="w3-container">{displayBid(bids, 2)}</div>
-          ) : null}
-        </div>
-      </div>
-    )}
-    <div className="bottom">
-      <button onClick={() => setShowPlayersCards(!showPlayersCards)}>
-        {showPlayersCards
-          ? "Show Opponent's Cards"
-          : "Show Your Cards"}
-      </button>
-      <Button
+      <div className="container">
+        <div className="row">
+          <div className="column">
+            <div className = "card-container">
+              <img
+                src={
+                  cards[0]?.image
+                    ? cards[0]?.image
+                    : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
+                }
+                alt="Snow"
+              />
+              <input class = "bid-input"
+                type="text"
+                id="outlined-basic"
+                value={bid1}
+                onInput={(event) => {
+                  setBid1(event.target.value);
+                }}
+              />
+              {displayResults ? (
+              <div className="w3-container">{displayBid(bids, 0)}</div>
+              ) : null}
+            </div>
+          </div>
+          <div className="column">
+            <div className = "card-container">
+              <img
+                src={
+                  cards[1]?.image
+                    ? cards[1]?.image
+                    : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
+                }
+                alt="Forest"
+              />
+              <input class = "bid-input"
+                type="text"
+                id="outlined-basic"
+                value={bid2}
+                onInput={(event) => {
+                  setBid2(event.target.value);
+                }}
+              />
+              {displayResults ? (
+              <div className="w3-container">{displayBid(bids, 1)}</div>
+              ) : null}
+          <div className="buttons-container">
+            {showBidButton ? (
+              <button class = "bid-button"
+                onClick={() => bidButton(bid1, bid2, bid3)}
+                variant="contained"
+              >
+                Place Bid
+              </button>
+            ) : null}
+                  <button class = "copy-button"
         onClick={() => copyToClipboardButton(playersCards, sideboardCards)}
         variant="contained"
       >
         Copy to Clipboard
-      </Button>
-      {showPlayersCards ? (
-        <div className="grid-container">
-          <div>
-            <h3>Main Deck</h3>
-            {playersCards?.map((image) => (
+      </button>
+              </div>
+            </div>
+          </div>
+          <div className="column">
+            <div className = "card-container">  
+            <img
+              src={
+                cards[2]?.image
+                  ? cards[2]?.image
+                  : "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=130520&type=card"
+              }
+              alt="Mountains"
+            />
+              <input class = "bid-input"
+                type="text"
+                id="outlined-basic"
+                value={bid3}
+                onInput={(event) => {
+                  setBid3(event.target.value);
+                }}
+              />
+              {displayResults ? (
+              <div className="w3-container">{displayBid(bids, 2)}</div>
+              ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+    )}
+    <div>
+      {/* <button className = "swap-cards-displayed" 
+        onClick={() => setShowPlayersCards(!showPlayersCards)}>
+        {showPlayersCards
+          ? "Show Opponent's Cards"
+          : "Show Your Cards"}
+      </button> */}
+<div>
+  <div style={{ position: "relative" }}>
+    <div className="main-deck-container">
+    <button
+      className="swap-cards-button"
+      onClick={() => setShowPlayersCards(!showPlayersCards)}
+    >
+      {showPlayersCards
+        ? "Show Opponent's Cards"
+        : "Show Your Cards"}
+    </button>
+      <div className="deck-header">
+        Main Deck ({showPlayersCards ? playersCards?.length : opponentsCards?.length})
+      </div>
+      <div className="main-deck">
+        {showPlayersCards
+          ? playersCards?.map((image) => (
+              <img
+                key={image.id}
+                src={image?.image}
+                alt={image?.alt}
+                onClick={() => handleCardMove(image)}
+              />
+            ))
+          : opponentsCards?.map((image) => (
               <img
                 key={image.id}
                 src={image?.image}
@@ -353,25 +425,37 @@ function displayBid(bids, int) {
                 onClick={() => handleCardMove(image)}
               />
             ))}
-          </div>
-          <div>
-            <h3>Side Board</h3>
-            {sideboardCards?.map((image) => (
-                           <img
-                           key={image.id}
-                           src={image?.image}
-                           alt={image?.alt}
-                           onClick={() => handleCardMove(image)}
-                         />
-                       ))}
-                     </div>
-                   </div>
-                 ) : (
-                   opponentsCards?.map((image) => (
-                     <img src={image?.image} alt={image?.alt} />
-                   ))
-                 )}
-               </div>
+      </div>
+    </div>
+    <div className="side-board-container">
+      <div className="deck-header">
+        Sideboard ({showPlayersCards ? sideboardCards?.length : opponentsSideboardCards?.length})
+      </div>
+      <div className="side-board">
+        {showPlayersCards
+          ? sideboardCards?.map((image) => (
+              <img
+                key={image.id}
+                src={image?.image}
+                alt={image?.alt}
+                onClick={() => handleCardMove(image)}
+              />
+            ))
+          : opponentsSideboardCards?.map((image) => (
+              <img
+                key={image.id}
+                src={image?.image}
+                alt={image?.alt}
+                onClick={() => handleCardMove(image)}
+              />
+            ))}
+      </div>
+    </div>
+  </div>
+
+
+</div>
+      </div>
                <div>
                  <Snackbar
                    open={openSnackbar}
