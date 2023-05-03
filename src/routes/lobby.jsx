@@ -2,7 +2,6 @@ import * as React from "react";
 import { useLoaderData, useSearchParams, useParams } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import '../App.css';
-// import Button from '@mui/material/Button'; 
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Gallery } from "react-grid-gallery";
@@ -394,60 +393,67 @@ function displayBid(bids, int) {
           ? "Show Opponent's Cards"
           : "Show Your Cards"}
       </button> */}
+<div>
+  <div style={{ position: "relative" }}>
+    <div className="main-deck-container">
+    <button
+      className="swap-cards-button"
+      onClick={() => setShowPlayersCards(!showPlayersCards)}
+    >
+      {showPlayersCards
+        ? "Show Opponent's Cards"
+        : "Show Your Cards"}
+    </button>
+      <div className="deck-header">
+        Main Deck ({showPlayersCards ? playersCards?.length : opponentsCards?.length})
+      </div>
+      <div className="main-deck">
+        {showPlayersCards
+          ? playersCards?.map((image) => (
+              <img
+                key={image.id}
+                src={image?.image}
+                alt={image?.alt}
+                onClick={() => handleCardMove(image)}
+              />
+            ))
+          : opponentsCards?.map((image) => (
+              <img
+                key={image.id}
+                src={image?.image}
+                alt={image?.alt}
+                onClick={() => handleCardMove(image)}
+              />
+            ))}
+      </div>
+    </div>
+    <div className="side-board-container">
+      <div className="deck-header">
+        Sideboard ({showPlayersCards ? sideboardCards?.length : opponentsSideboardCards?.length})
+      </div>
+      <div className="side-board">
+        {showPlayersCards
+          ? sideboardCards?.map((image) => (
+              <img
+                key={image.id}
+                src={image?.image}
+                alt={image?.alt}
+                onClick={() => handleCardMove(image)}
+              />
+            ))
+          : opponentsSideboardCards?.map((image) => (
+              <img
+                key={image.id}
+                src={image?.image}
+                alt={image?.alt}
+                onClick={() => handleCardMove(image)}
+              />
+            ))}
+      </div>
+    </div>
+  </div>
 
-<div style={{ position: "relative" }}>
-  <button
-    className="swap-cards-button"
-    onClick={() => setShowPlayersCards(!showPlayersCards)}
-  >
-    {showPlayersCards
-      ? "Show Opponent's Cards"
-      : "Show Your Cards"}
-  </button>
-  <div className="deck-header">
-      Main Deck ({showPlayersCards ? playersCards?.length : opponentsCards?.length})
-    </div>
-  <div className="main-deck">
-  {showPlayersCards
-    ? playersCards?.map((image) => (
-        <img
-          key={image.id}
-          src={image?.image}
-          alt={image?.alt}
-          onClick={() => handleCardMove(image)}
-        />
-      ))
-    : opponentsCards?.map((image) => (
-        <img
-          key={image.id}
-          src={image?.image}
-          alt={image?.alt}
-          onClick={() => handleCardMove(image)}
-        />
-      ))}
-  </div>
-  <div className="deck-header">
-      Sideboard ({showPlayersCards ? sideboardCards?.length : opponentsSideboardCards?.length})
-    </div>
-  <div className="side-board">
-  {showPlayersCards
-    ? sideboardCards?.map((image) => (
-        <img
-          key={image.id}
-          src={image?.image}
-          alt={image?.alt}
-          onClick={() => handleCardMove(image)}
-        />
-      ))
-    : opponentsSideboardCards?.map((image) => (
-        <img
-          key={image.id}
-          src={image?.image}
-          alt={image?.alt}
-          onClick={() => handleCardMove(image)}
-        />
-      ))}
-  </div>
+
 </div>
       </div>
                <div>
