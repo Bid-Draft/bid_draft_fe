@@ -55,7 +55,6 @@ useEffect(() => {
     checkCards();
     const prevCount = checkCount
     setCheckCount(prevCount => prevCount + 1)
-    console.log(checkCount)
     if (checkCount === 150) {
       setCheckTime(30000);
     }
@@ -134,7 +133,7 @@ const assignBids = (data) => {
     if (bid.tied === "true") {
       
     } else if (bid.winner_uuid === localStorage.getItem('userId')) {
-
+      
       setPlayersCards((prevState) => [...prevState, pendingCards[bid.card_id]]);
 
     } else {
@@ -254,7 +253,6 @@ function copyToClipboardButton(playersCards, sideboardCards) {
 async function initializeGame() {
   if (!justLoaded){
     const cards = await getPlayersCards(game);
-    console.log(cards);
     assignCardsAfterRefresh(cards);
     getCards(game);
     joinGame(localStorage.getItem('userId'));

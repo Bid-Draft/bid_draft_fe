@@ -14,7 +14,7 @@ import Lobby from "./routes/lobby";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div><Root /></div>,
+    element: <div><Create/></div>
   },
   {
     path: "/ass",
