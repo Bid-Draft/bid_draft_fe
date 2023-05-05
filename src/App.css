@@ -41,7 +41,7 @@
   float: left;
   width: 20%;
   padding: 5px;
-  margin: 3em;
+  margin: 4em;
 }
 
 .row::after {
@@ -60,6 +60,7 @@
   flex-direction: column;
   align-items: center;
   margin-top: -22em;
+  
 }
 
 
@@ -249,7 +250,8 @@ body {
   margin-top: 1rem;
   font-size: 16px;
   padding: 8px;
-  border: 1px solid #6CB4EE;
+  border: 1px solid #000000;
+  background-color:rgb(238, 238, 238);
 }
 
 .main-deck {
@@ -286,13 +288,17 @@ body {
 }
 
 .buttons-container {
+  margin-top: 1.5rem;
   display: flex;
   justify-content: center;
   gap: 1rem;
 }
 
 .swap-cards-button {
+  width: 10vw;
+  height: 2.5rem;
   margin-top: .5rem;
+  margin-right: 2vw;
   display: inline-block;
   padding: .1rem .5rem;
   border-radius: 10rem;
@@ -347,7 +353,6 @@ body {
   position: absolute;
   top: -1.5rem; 
   left: 0;
-  background-color: white; 
   padding: 0 5px;
 }
 .logo {
@@ -364,9 +369,15 @@ html, body {
 
 .main-deck-container,
 .side-board-container {
+  margin-top: 3rem;
   position: relative;
 }
 
 .home-page {
   text-align: center;
+}
+
+.results {
+  margin-top: 1.5rem;
+  margin-bottom: .7rem;
 }

@@ -283,12 +283,19 @@ function displayBid(bids, int) {
 <div>
 <h2>
   <div className="points-container">
-    <div className="your-points">Your Points: {playersCurrency}</div>
+    <div className="your-points">
+     {!gameOver ? `Player Points: ${playersCurrency}` : null}
+    </div>
     <div className = "cards-handled">
-    Cards: {cardsHandled + 3} / 90
+    {!gameOver ? `Cards: ${cardsHandled + 3} / 90` : <button class = "copy-button"
+        onClick={() => copyToClipboardButton(playersCards, sideboardCards)}
+        variant="contained"
+      >
+        Copy to Clipboard
+      </button>}
     </div>
     <div className="opponents-points">
-      Opponents Points: {opponentsCurrency}
+    {!gameOver ? `Opponents Points: ${opponentsCurrency}` : null}
     </div>
   </div>
 </h2>
@@ -315,7 +322,7 @@ function displayBid(bids, int) {
                 }}
               />
               {displayResults ? (
-              <div className="w3-container">{displayBid(bids, 0)}</div>
+              <div class ="results">{displayBid(bids, 0)}</div>
               ) : null}
             </div>
           </div>
@@ -338,7 +345,7 @@ function displayBid(bids, int) {
                 }}
               />
               {displayResults ? (
-              <div className="w3-container">{displayBid(bids, 1)}</div>
+              <div class ="results">{displayBid(bids, 1)}</div>
               ) : null}
           <div className="buttons-container">
             {showBidButton ? (
@@ -346,15 +353,18 @@ function displayBid(bids, int) {
                 onClick={() => bidButton(bid1, bid2, bid3)}
                 variant="contained"
               >
+                
                 Place Bid
               </button>
+              
             ) : null}
+            {showBidButton ? (
                   <button class = "copy-button"
         onClick={() => copyToClipboardButton(playersCards, sideboardCards)}
         variant="contained"
       >
         Copy to Clipboard
-      </button>
+      </button>) : null}
               </div>
             </div>
           </div>
@@ -377,7 +387,7 @@ function displayBid(bids, int) {
                 }}
               />
               {displayResults ? (
-              <div className="w3-container">{displayBid(bids, 2)}</div>
+              <div class ="results"> {displayBid(bids, 2)}</div>
               ) : null}
           </div>
         </div>
@@ -385,12 +395,6 @@ function displayBid(bids, int) {
     </div>
     )}
     <div>
-      {/* <button className = "swap-cards-displayed" 
-        onClick={() => setShowPlayersCards(!showPlayersCards)}>
-        {showPlayersCards
-          ? "Show Opponent's Cards"
-          : "Show Your Cards"}
-      </button> */}
 <div>
   <div style={{ position: "relative" }}>
     <div className="main-deck-container">
@@ -403,7 +407,7 @@ function displayBid(bids, int) {
         : "Show Your Cards"}
     </button>
       <div className="deck-header">
-        Main Deck ({showPlayersCards ? playersCards?.length : opponentsCards?.length})
+      {showPlayersCards ? `Player Main Deck (${playersCards?.length})` : `Opponent's Main Deck (${opponentsCards?.length})`}
       </div>
       <div className="main-deck">
         {showPlayersCards
@@ -427,7 +431,7 @@ function displayBid(bids, int) {
     </div>
     <div className="side-board-container">
       <div className="deck-header">
-        Sideboard ({showPlayersCards ? sideboardCards?.length : opponentsSideboardCards?.length})
+      {showPlayersCards ? `Player Sideboard (${sideboardCards?.length})` : `Opponent's Sideboard (${opponentsSideboardCards?.length})`}
       </div>
       <div className="side-board">
         {showPlayersCards

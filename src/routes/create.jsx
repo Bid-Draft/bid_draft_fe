@@ -102,8 +102,6 @@ const SelectSet = () => {
           </select>
           <button class ="start-button" onClick={() => makeGame(set)}>Start</button>
         </div>
-        <button class ="start-button" onClick={() => makeGame(set)}>info
-        </button>
         </div>
     </div>
   </div>
