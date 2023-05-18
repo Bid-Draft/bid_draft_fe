@@ -24,7 +24,7 @@ const SelectSet = () => {
   const makeGame = async (set) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/v1/game?set=${set}&player_one_uuid=${localStorage.getItem(
+        `https://vast-savannah-37442.herokuapp.com/api/v1/game?set=${set}&player_one_uuid=${localStorage.getItem(
           "userId"
         )}`,
         {
