@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import logo from "../images/logo.png";
+import github from "../images/github.png";
 import '../App.css';
 
 const SelectSet = () => {
@@ -21,10 +22,12 @@ const SelectSet = () => {
     navigate(path);
   };
 
+
+
   const makeGame = async (set) => {
     try {
       const response = await fetch(
-        `https://vast-savannah-37442.herokuapp.com/api/v1/game?set=${set}&player_one_uuid=${localStorage.getItem(
+        `http://localhost:3000/api/v1/game?set=${set}&player_one_uuid=${localStorage.getItem(
           "userId"
         )}`,
         {
@@ -102,7 +105,17 @@ const SelectSet = () => {
           </select>
           <button class ="start-button" onClick={() => makeGame(set)}>Start</button>
         </div>
+        <div class = "info-button-container">
+          <button class ="start-button" onClick={() => navigate('/info')}>Info</button>
         </div>
+        </div>
+    </div>
+    <div class = 'git-hub'>
+        <a href="https://github.com/orgs/Bid-Draft/repositories" target="_blank" rel="noopener noreferrer">
+            <button class='git-hub-button'>
+                <img src={github} alt="git hub"/>
+            </button>
+        </a>
     </div>
   </div>
   );

@@ -1,6 +1,7 @@
 import { Routes, Route, createRoutesFromElements, createBrowserRouter, RouterProvider } from "react-router-dom"
 import Create from "./routes/create"
 import Lobby  from "./routes/lobby"
+import Info from "./routes/info"
 
 
 const router = createBrowserRouter([
@@ -12,6 +13,10 @@ const router = createBrowserRouter([
         path: "/lobby/:gameId",
         element: <Lobby />,
       },
+      {
+        path: "/info",
+        element: <Info />,
+      }
     ]
   );
 
