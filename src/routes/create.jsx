@@ -21,10 +21,12 @@ const SelectSet = () => {
     navigate(path);
   };
 
+
+
   const makeGame = async (set) => {
     try {
       const response = await fetch(
-        `https://vast-savannah-37442.herokuapp.com/api/v1/game?set=${set}&player_one_uuid=${localStorage.getItem(
+        `http://localhost:3000/api/v1/game?set=${set}&player_one_uuid=${localStorage.getItem(
           "userId"
         )}`,
         {
@@ -101,6 +103,9 @@ const SelectSet = () => {
         <option value={"M12"}>M12</option>
           </select>
           <button class ="start-button" onClick={() => makeGame(set)}>Start</button>
+        </div>
+        <div class = "info-button-container">
+          <button class ="start-button" onClick={() => navigate('/info')}>Info</button>
         </div>
         </div>
     </div>

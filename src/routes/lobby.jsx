@@ -79,7 +79,7 @@ const handleCloseSnackbar = (event, reason) => {
 const checkCards = async () => {
 
   try {
-    const response = await fetch(`https://vast-savannah-37442.herokuapp.com/api/v1/bids?game_id=${game}&last_card=${cards[2].id}`, {
+    const response = await fetch(`http://localhost:3000/api/v1/bids?game_id=${game}&last_card=${cards[2].id}`, {
     });
     const json = await response.json();
     if (json["complete"] === "true" ) {
@@ -118,7 +118,7 @@ const handleCardMove = (card) => {
 
 const joinGame = async () => {
   try {
-    const response = await fetch(`https://vast-savannah-37442.herokuapp.com/api/v1/players?uuid=${localStorage.getItem('userId')}&game_id=${game}`, {
+    const response = await fetch(`http://localhost:3000/api/v1/players?uuid=${localStorage.getItem('userId')}&game_id=${game}`, {
       method: "POST"
     });
     const result = await response.json();
@@ -154,7 +154,7 @@ setTimeout(() => {
 const makeBid = async (bid1,bid2,bid3) => {
 
   try {
-    const response = await fetch(`https://vast-savannah-37442.herokuapp.com/api/v1/bids`, {
+    const response = await fetch(`http://localhost:3000/api/v1/bids`, {
         method: "POST",
         body: JSON.stringify({gameId:game, bid1: bid1, bid2: bid2, bid3: bid3, card1Id: cards[0].id, card2Id: cards[1].id, card3Id: cards[2].id, uuid: localStorage.getItem('userId')})
     });
@@ -167,7 +167,7 @@ const makeBid = async (bid1,bid2,bid3) => {
 
 const getCards = async (game) => {
   try {
-    const results = await fetch (`https://vast-savannah-37442.herokuapp.com/api/v1/cards?id=${game}`);
+    const results = await fetch (`http://localhost:3000/api/v1/cards?id=${game}`);
   
     const  data = await results.json();
    setCards(data.cards)
@@ -183,7 +183,7 @@ const getCards = async (game) => {
 
 const getPlayersCards = async (game) => {
   try {
-    const results = await fetch (`https://vast-savannah-37442.herokuapp.com/api/v1/cards/players?id=${game}`);
+    const results = await fetch (`http://localhost:3000/api/v1/cards/players?id=${game}`);
   
     const  data = await results.json();
     return data
