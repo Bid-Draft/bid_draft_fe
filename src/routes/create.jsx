@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import logo from "../images/logo.png";
+import github from "../images/github.png";
 import '../App.css';
 
 const SelectSet = () => {
@@ -108,6 +109,13 @@ const SelectSet = () => {
           <button class ="start-button" onClick={() => navigate('/info')}>Info</button>
         </div>
         </div>
+    </div>
+    <div class = 'git-hub'>
+        <a href="https://github.com/orgs/Bid-Draft/repositories" target="_blank" rel="noopener noreferrer">
+            <button class='git-hub-button'>
+                <img src={github} alt="git hub"/>
+            </button>
+        </a>
     </div>
   </div>
   );
